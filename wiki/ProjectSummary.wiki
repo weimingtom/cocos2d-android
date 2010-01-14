@@ -1,6 +1,4 @@
-#summary One-sentence summary of this page.
 #labels cocos2d-android,summary,2D,game,games,android
-
 = Introduction =
 Cocos2d for android is a framework for building 2D games, demos and other graphical/interactive application. It is based on the [http://code.google.com/p/cocos2d-iphone/ cocos2d-iphone] design: it uses the same API, but instead of using Objective-C it uses java. 
 
