@@ -1,0 +1,11 @@
+package com.moandroid.cocos2d.util;
+
+public class CCConfig {
+	public static final float 	CC_DIRECTOR_FPS_INTERVAL = 1f;
+	public static final boolean CC_DIRECTOR_SHOW_FPS = true;
+	public static final boolean CC_DIRECTOR_FAST_FPS = true;
+	public static final boolean CC_DIRECTOR_ENABLE_PROFILERS = false;
+
+	public static final boolean CC_SURFACE_USE_GL_DEBUG_WRAPPER = false;
+	public static final long CC_DIRECTOR_MIN_UPDATE_DELAY = 1000 / 33;
+}
