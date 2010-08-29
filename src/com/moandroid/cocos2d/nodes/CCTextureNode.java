@@ -37,13 +37,16 @@ public class CCTextureNode extends CCNode
 		_opacity = opactity;
 	}
 	
-	private CCColor3B _color = CCUtils.ccWHITE;
+	private CCColor3B _color =  new CCColor3B((byte)255,(byte)255,(byte)255);
 	@Override
 	public CCColor3B color() {
 		return _color;
 	}
 	@Override
 	public void setColor(CCColor3B color) {
+		_color.r = color.r;
+		_color.g = color.g;
+		_color.b = color.b;
        _color = color;
 	}
 

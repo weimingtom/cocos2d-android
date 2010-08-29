@@ -25,7 +25,7 @@ public class CCSprite extends CCTextureNode
 	protected CCSprite(CCTexture2D texture) {
 		setTexture(texture);
 	}
-	
+		
 	private HashMap<String, CCAnimationProtocol> _animations;
     private void allocAnimations() {
         _animations = new HashMap<String, CCAnimationProtocol>(2);

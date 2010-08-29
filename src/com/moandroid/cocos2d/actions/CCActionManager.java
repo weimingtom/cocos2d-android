@@ -34,7 +34,7 @@ public class CCActionManager {
 	
 	private HashMap<CCNode, ArrayList<CCAction>> actionsMap = new HashMap<CCNode, ArrayList<CCAction>>(131);
 
-	public void addAction(CCAction action, CCNode target) {
+	public synchronized void addAction(CCAction action, CCNode target) {
 		Assert.assertTrue("Argument action must be non-null", action != null);
 		Assert.assertTrue("Argument target must be non-null", target != null);
 		ArrayList<CCAction> actionList;
@@ -56,7 +56,7 @@ public class CCActionManager {
 		node.setIsRunning(false);
 	}
 
-	public void removeAllActions(){
+	public synchronized void removeAllActions(){
 		Collection<ArrayList<CCAction>> values = actionsMap.values();
 		for(ArrayList<CCAction> list : values){
 			list.clear();
@@ -64,13 +64,13 @@ public class CCActionManager {
 		actionsMap.clear();
 	}
 	
-	public void removeAllActions(CCNode target) {
+	public synchronized void removeAllActions(CCNode target) {
 		if(actionsMap.containsKey(target)){
 			actionsMap.remove(target);
 		}
 	}
 	
-	public void removeAction(CCAction action) {
+	public synchronized void removeAction(CCAction action) {
 		CCNode target = action.originalTarget();
 		if(actionsMap.containsKey(target)){
 			ArrayList<CCAction> actionList = actionsMap.get(target);
@@ -78,7 +78,7 @@ public class CCActionManager {
 		}
 	}
 	
-	public void removeAction(int tag, CCNode target) {
+	public synchronized void removeAction(int tag, CCNode target) {
 		Assert.assertTrue("Invalid tag", tag != CCAction.INVALID_TAG);
 		if(actionsMap.containsKey(target)){
 			ArrayList<CCAction> actionList = actionsMap.get(target);
@@ -111,7 +111,7 @@ public class CCActionManager {
 		return 0;
 	}
 	
-    public void tick(float dt) {
+    public synchronized void tick(float dt) {
     	ArrayList<CCNode> dropList = new ArrayList<CCNode>(5);
     	Iterator<Entry<CCNode,ArrayList<CCAction>>> it = actionsMap.entrySet().iterator();
 		while(it.hasNext()){

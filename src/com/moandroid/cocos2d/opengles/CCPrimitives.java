@@ -90,9 +90,9 @@ public class CCPrimitives {
             vertices.put(poli[i].y);
         }
         vertices.position(0);
-
-        gl.glVertexPointer(2, GL_FLOAT, 0, vertices);
+        
         gl.glEnableClientState(GL_VERTEX_ARRAY);
+        gl.glVertexPointer(2, GL_FLOAT, 0, vertices);
 
         if (closePolygon)
             gl.glDrawArrays(GL_LINE_LOOP, 0, numberOfPoints);

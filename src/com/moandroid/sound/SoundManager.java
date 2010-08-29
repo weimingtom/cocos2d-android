@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -265,7 +264,14 @@ public class SoundManager {
 					    _m._mediaplayer.pause();
 			  }
 		  }
-		  m._mediaplayer.start();			
+			try
+			{
+				m._mediaplayer.start();		
+			}
+			catch (IllegalStateException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		return m!=null;
 	}
@@ -348,7 +354,7 @@ public class SoundManager {
 		  _m._context=null;
 		  _m._mediaplayer.release();
 	   }
-	   sounds_ID.clear();
+	   sounds_URI.clear();
 	}
 	
 	public void pauseAll()

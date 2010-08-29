@@ -41,7 +41,6 @@ public class CCAnimate extends CCIntervalAction{
 	        if(_restoreOriginalFrame){
 		        CCNodeFrames sprite = (CCNodeFrames) _target;   
 		        _originalFrame = (CCTexture2D) sprite.displayFrame();
-		        CCTextureCache.sharedTextureCache().retain(_originalFrame);
 	        }
 	    }
 

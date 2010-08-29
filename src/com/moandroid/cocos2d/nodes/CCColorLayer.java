@@ -13,7 +13,6 @@ import com.moandroid.cocos2d.types.CCBlendFunc;
 import com.moandroid.cocos2d.types.CCColor3B;
 import com.moandroid.cocos2d.types.CCColor4B;
 import com.moandroid.cocos2d.types.CCSize;
-import com.moandroid.cocos2d.util.CCUtils;
 
 public class CCColorLayer extends CCLayer 
 						  implements CCRGBAProtocol, CCBlendProtocol{
@@ -62,14 +61,16 @@ public class CCColorLayer extends CCLayer
 		_squareColors.position(0);
 	}
 	
-	private CCColor3B _color = CCUtils.ccWHITE;
+	private CCColor3B _color =  new CCColor3B((byte)255,(byte)255,(byte)255);
 	@Override
 	public CCColor3B color() {
 		return _color;
 	}
 	@Override
 	public void setColor(CCColor3B color) {
-		_color = color;
+		_color.r = color.r;
+		_color.g = color.g;
+		_color.b = color.b;
 		updateColor();
 	}
 

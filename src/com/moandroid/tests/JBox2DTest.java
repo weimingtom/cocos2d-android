@@ -70,7 +70,7 @@ public class JBox2DTest extends Activity {
 	}
 	
 	public class JBox2DTestDemo extends CCLayer {
-	    public static final int kTagSpriteManager = 1;
+	    //public static final int kTagSpriteManager = 1;
 	    	
 		// Pixel to meters ratio. Box2D uses meters as the unit for measurement.
 		// This ratio defines how many pixels correspond to 1 Box2D "meter"
