@@ -1,6 +1,5 @@
 package com.moandroid.cocos2d.nodes;
 
-import android.hardware.SensorEvent;
 import android.view.MotionEvent;
 
 import com.moandroid.cocos2d.events.CCAccelerometerDelegate;
@@ -82,34 +81,23 @@ public class CCLayer extends CCNode
 	
 	@Override
 	public boolean touchesBegan(MotionEvent event) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	@Override
 	public boolean touchesCancelled(MotionEvent event) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	@Override
 	public boolean touchesEnded(MotionEvent event) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	@Override
 	public boolean touchesMoved(MotionEvent event) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean accelerometerAccuracyChanged(int accuracy) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean accelerometerChanged(SensorEvent event) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

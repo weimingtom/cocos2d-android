@@ -4,6 +4,13 @@ public class CCRect {
 	public CCPoint origin;
 	public CCSize size;
 	
+	public void setAll(float x, float y, float w, float h){
+		origin.x = x;
+		origin.y = y;
+		size.width = w;
+		size.height = h;
+	}
+	
 	private CCRect() {
 	    this(0, 0, 0, 0);
 	}

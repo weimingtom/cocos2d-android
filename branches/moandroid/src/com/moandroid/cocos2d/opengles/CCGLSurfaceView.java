@@ -18,8 +18,8 @@ public class CCGLSurfaceView extends GLSurfaceView
 	public CCGLSurfaceView(Context context){
 		super(context);
 		if(CCConfig.CC_SURFACE_USE_GL_DEBUG_WRAPPER){
-			//setGLWrapper(new CCGLDebugWrapper());
-			setDebugFlags(DEBUG_LOG_GL_CALLS |  DEBUG_CHECK_GL_ERROR);
+			setGLWrapper(new CCGLDebugWrapper());
+			//setDebugFlags(DEBUG_LOG_GL_CALLS |  DEBUG_CHECK_GL_ERROR);
 		}
 			
 		

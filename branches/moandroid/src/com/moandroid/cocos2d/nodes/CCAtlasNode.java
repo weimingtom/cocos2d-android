@@ -382,7 +382,7 @@ public class CCAtlasNode extends CCNode
 		_opacity = opactity;
 	}	
 	
-	private CCColor3B _color;	
+	private CCColor3B _color = new CCColor3B((byte)255,(byte)255,(byte)255);	
 //	private CCColor3B _colorUnmodified;
 	@Override
 	public CCColor3B color() {
@@ -399,7 +399,9 @@ public class CCAtlasNode extends CCNode
 //									(byte)((color.g&0xFF) * (_opacity&0xFF)/255), 
 //									(byte)((color.b&0xFF) * (_opacity&0xFF)/255));
 //		}else{
-			_color = color;
+			_color.r = color.r;
+			_color.g = color.g;
+			_color.b = color.b;
 //		}
 	}
 	

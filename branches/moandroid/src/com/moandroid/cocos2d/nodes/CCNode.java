@@ -217,7 +217,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	return null;
     }
 
-    public synchronized CCNode addChild(CCNode child, int z, int tag) {
+    public CCNode addChild(CCNode child, int z, int tag) {
     	Assert.assertTrue("Argument must be non-nil", child != null);
     	Assert.assertTrue("child already added. It can't be added again", child.parent() == null);
     	
@@ -240,7 +240,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	return addChild(child, child.zOrder(), child.tag());
     }
     
-    public void insertChild(CCNode child, int z){
+    public synchronized void insertChild(CCNode child, int z){
     	Assert.assertTrue("Child must be non-nil", child != null);
     	boolean added = false;
     	 for (int i = 0; i < _children.size(); i++) {
@@ -258,7 +258,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	child.setZOrder(z);
     }
 	
-    public void reorderChild(CCNode child, int zOrder){
+    public synchronized void reorderChild(CCNode child, int zOrder){
     	Assert.assertTrue("Child must be non-nil", child != null);
     	_children.remove(child);
     	insertChild(child,zOrder);
@@ -290,7 +290,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	}
     }
     
-    public void detachChild(CCNode child, boolean doCleanup){
+    public synchronized void detachChild(CCNode child, boolean doCleanup){
     	Assert.assertTrue("Child must be non-nil", child != null);
 
     	if(_isRunning){

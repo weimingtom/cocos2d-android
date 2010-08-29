@@ -8,6 +8,7 @@ import junit.framework.Assert;
 import com.moandroid.cocos2d.actions.CCActionManager;
 import com.moandroid.cocos2d.actions.CCScheduler;
 
+import com.moandroid.cocos2d.events.CCAccelerometerDispatcher;
 import com.moandroid.cocos2d.events.CCTouchDispatcher;
 import com.moandroid.cocos2d.events.CCTouchInputProtocol;
 
@@ -133,6 +134,7 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 	private boolean _isEnd = false;
 	public synchronized void end(){
 			CCTouchDispatcher.purgeSharedDispatcher();
+			CCAccelerometerDispatcher.purgeSharedDispatcher();
 			if(CCConfig.CC_DIRECTOR_FAST_FPS && _labelFPS != null){
 				_labelFPS.cleanup();
 				_labelFPS = null;

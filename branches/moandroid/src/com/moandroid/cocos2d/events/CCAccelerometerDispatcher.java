@@ -30,29 +30,42 @@ public class CCAccelerometerDispatcher {
 				if(context != null){
 					SensorManager sm = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 					sm.unregisterListener(_sharedDispatcher._listener);
-					_sharedDispatcher._isAccelerometerEnabled = false;		
+					_sharedDispatcher._isAccelerometerEnabled = false;
+					_sharedDispatcher._delegates.clear();
 				}							
 			}
 			_sharedDispatcher = null;
 		}
 	}
+
+
 	
 	class accelerometerListener implements SensorEventListener{
 
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			//if(_sharedDispatcher==null || !_sharedDispatcher._isAccelerometerEnabled)
+				//return;
+				_locked = true;
 	            for( CCAccelerometerDelegate delegate : _delegates ) {
 	                if( delegate.accelerometerAccuracyChanged(accuracy))
 	                    break;
 	            }
+	            updateDelegate();
+	            _locked = false;
 			}
 			
 		@Override
 		public void onSensorChanged(SensorEvent event) {
+			if(_sharedDispatcher==null || !_sharedDispatcher._isAccelerometerEnabled)
+				return;
+			_locked = true;
             for( CCAccelerometerDelegate delegate : _delegates ) {
                 if( delegate.accelerometerChanged(event.values[0],event.values[1],event.values[2]))
                     break;
-            }	
+            }
+            updateDelegate();
+            _locked = false;
 		}		
 	}
 	
@@ -61,6 +74,7 @@ public class CCAccelerometerDispatcher {
 	public boolean isAccelerometerEnabled(){
 		return _isAccelerometerEnabled;
 	}
+	
 	protected void setIsAccelerometerEnabled(boolean enable){
 		if(_isAccelerometerEnabled == enable)
 			return;
@@ -79,25 +93,66 @@ public class CCAccelerometerDispatcher {
 			}		
 		}
 	}
+	private ArrayList<CCAccelerometerDelegate> _delegatesToAdd = new ArrayList<CCAccelerometerDelegate>(8);
+	private ArrayList<CCAccelerometerDelegate> _delegatesToRemove = new ArrayList<CCAccelerometerDelegate>(8);
 	
+	private boolean _toAdd = false;
+	private boolean _toRemove = false;
+	private boolean _toQuit = false;
+	private boolean _locked = false;
 	private ArrayList<CCAccelerometerDelegate> _delegates = new ArrayList<CCAccelerometerDelegate>(8);
 	
 	public void addDelegate(CCAccelerometerDelegate delegate){
-		setIsAccelerometerEnabled(true);
-		if(!_delegates.contains(delegate)){
-			_delegates.add(delegate);
+		if(!_locked){
+			setIsAccelerometerEnabled(true);
+			if(!_delegates.contains(delegate)){
+				_delegates.add(delegate);
+			}			
+		}else{
+			_delegatesToAdd.add(delegate);
+			_toAdd = true;
 		}
 	}
 	
 	public void removeDelegate(CCAccelerometerDelegate delegate){
-		_delegates.remove(delegate);
-		if(_delegates.isEmpty()){
-			setIsAccelerometerEnabled(false);
+		if(!_locked){
+			_delegates.remove(delegate);
+			if(_delegates.isEmpty()){
+				_isAccelerometerEnabled = false;
+			}
+		}else{
+			_delegatesToRemove .add(delegate);
+			_toRemove = true;
 		}
 	}
 	
 	public void removeAllDelegate(){
-		_delegates.clear();
-		setIsAccelerometerEnabled(false);
+		if(!_locked){
+			_delegates.clear();
+			_isAccelerometerEnabled = false;
+		}else{
+			_toQuit = true;
+		}
+	}
+	
+	protected void updateDelegate(){
+		if(_toRemove){
+			_toRemove = false;
+			for(CCAccelerometerDelegate delegate:_delegatesToRemove){
+				removeDelegate(delegate);
+			}
+			_delegatesToRemove.clear();
+		}
+		if(_toAdd){
+			_toAdd = false;
+			for(CCAccelerometerDelegate delegate:_delegatesToAdd){
+				addDelegate(delegate);
+			}
+			_delegatesToAdd.clear();
+		}
+		if(_toQuit){
+			_toQuit = false;
+			removeAllDelegate();
+		}
 	}
 }
