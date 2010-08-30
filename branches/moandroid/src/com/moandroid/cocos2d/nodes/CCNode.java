@@ -13,7 +13,7 @@ import android.view.MotionEvent;
 import com.moandroid.cocos2d.actions.CCAction;
 import com.moandroid.cocos2d.actions.CCActionManager;
 import com.moandroid.cocos2d.actions.CCScheduler;
-import com.moandroid.cocos2d.actions.interval.CCTimer;
+import com.moandroid.cocos2d.actions.CCTimer;
 import com.moandroid.cocos2d.camera.CCCamera;
 
 import com.moandroid.cocos2d.nodes.protocol.CCNodeSizeProtocol;

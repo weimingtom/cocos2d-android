@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import junit.framework.Assert;
 
-import com.moandroid.cocos2d.actions.interval.CCTimer;
 import com.moandroid.cocos2d.nodes.CCNode;
 
 public class CCActionManager {

@@ -1,6 +1,7 @@
 package com.moandroid.cocos2d.actions.interval;
 
 import com.moandroid.cocos2d.animation.CCAnimationProtocol;
+import com.moandroid.cocos2d.animation.CCNodeFrames;
 import com.moandroid.cocos2d.nodes.CCNode;
 import com.moandroid.cocos2d.texture.CCTexture2D;
 import com.moandroid.cocos2d.texture.CCTextureCache;

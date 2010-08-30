@@ -2,7 +2,6 @@ package com.moandroid.cocos2d.actions;
 
 import java.util.ArrayList;
 
-import com.moandroid.cocos2d.actions.interval.CCTimer;
 
 public class CCScheduler {
     private static CCScheduler _sharedScheduler = null;
