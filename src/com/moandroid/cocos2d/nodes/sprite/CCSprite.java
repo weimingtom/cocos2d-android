@@ -3,8 +3,8 @@ package com.moandroid.cocos2d.nodes.sprite;
 import java.util.HashMap;
 import android.graphics.Bitmap;
 
-import com.moandroid.cocos2d.actions.interval.CCNodeFrames;
 import com.moandroid.cocos2d.animation.CCAnimationProtocol;
+import com.moandroid.cocos2d.animation.CCNodeFrames;
 import com.moandroid.cocos2d.nodes.CCTextureNode;
 import com.moandroid.cocos2d.texture.CCTexture2D;
 import com.moandroid.cocos2d.texture.CCTextureCache;

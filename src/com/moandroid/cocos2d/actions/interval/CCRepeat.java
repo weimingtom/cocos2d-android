@@ -5,7 +5,7 @@ import com.moandroid.cocos2d.nodes.CCNode;
 
 public class CCRepeat extends CCIntervalAction {
 
-	  private int times;
+	  	private int times;
 	    private int total;
 	    private CCFiniteTimeAction other;
 

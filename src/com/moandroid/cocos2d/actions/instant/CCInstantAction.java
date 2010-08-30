@@ -8,9 +8,13 @@ public class CCInstantAction extends CCFiniteTimeAction{
         super(0);
     }
 
+    protected CCInstantAction(float d) {
+        super(d);
+    }
+    
     @Override
     public CCInstantAction copy() {
-        return new CCInstantAction();
+        return new CCInstantAction(_duration);
     }
 
     @Override

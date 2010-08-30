@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 import android.util.Log;
 
-import com.moandroid.cocos2d.actions.interval.CCNodeFrames;
 import com.moandroid.cocos2d.animation.CCAnimationProtocol;
 import com.moandroid.cocos2d.animation.CCAtlasAnimation;
+import com.moandroid.cocos2d.animation.CCNodeFrames;
 import com.moandroid.cocos2d.nodes.CCAtlasNode;
 import com.moandroid.cocos2d.nodes.CCNode;
 import com.moandroid.cocos2d.nodes.protocol.CCNodeSizeProtocol;
