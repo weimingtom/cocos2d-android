@@ -98,13 +98,17 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 //		_timer.schedule(new logicUpDate(), 0, 1000/60);
 	}
 	
+	private float _step;
 	@Override
 	public final synchronized void onDrawFrame(GL10 gl) {
 			if(_isEnd)
 				return;
 			calculateDeltaTime();
-	        if (!_isPaused)
-	            CCScheduler.sharedScheduler().tick(_dt);
+			_step += _dt;
+	        if (!_isPaused && _step > 0.015f){
+	        	CCScheduler.sharedScheduler().tick(_step);
+	        	_step = 0;
+	        }
 			CCSceneManager.shareManager().runNextScene();
 			gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
 			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);

@@ -19,11 +19,11 @@ import org.jbox2d.dynamics.contacts.ContactResult;
 
 import com.moandroid.cocos2d.actions.CCFiniteTimeAction;
 import com.moandroid.cocos2d.actions.CCRepeatForever;
+import com.moandroid.cocos2d.actions.CCScheduler;
+import com.moandroid.cocos2d.actions.CCTimer;
 import com.moandroid.cocos2d.actions.instant.CCCallFunc;
 import com.moandroid.cocos2d.actions.interval.CCAnimate;
 import com.moandroid.cocos2d.actions.interval.CCDelayTime;
-import com.moandroid.cocos2d.actions.interval.CCIntervalAction;
-import com.moandroid.cocos2d.actions.interval.CCRepeat;
 import com.moandroid.cocos2d.actions.interval.CCSequence;
 import com.moandroid.cocos2d.animation.CCAnimation;
 import com.moandroid.cocos2d.nodes.CCLayer;
@@ -35,7 +35,6 @@ import com.moandroid.cocos2d.opengles.CCPrimitives;
 import com.moandroid.cocos2d.renderers.CCDirector;
 import com.moandroid.cocos2d.renderers.CCDirector2D;
 import com.moandroid.cocos2d.types.CCPoint;
-import com.moandroid.cocos2d.types.CCRect;
 import com.moandroid.cocos2d.types.CCSize;
 import com.moandroid.cocos2d.util.CCUtils;
 import com.moandroid.sound.SoundManager;
@@ -68,9 +67,9 @@ public class DemonStar extends Activity {
 		CCDirector.sharedDirector().runWithScene(scene);
 		SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/lv8bg.mp3", true, false);
 		SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/bullet1.mp3", true, false);
-		//SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/crash.mp3", false, false);
-		//SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/bomb1.mp3", false, false);
-		//SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/bomb2.mp3", false, false);
+		SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/crash.mp3", false, false);
+		SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/bomb1.mp3", false, false);
+		SoundManager.sharedSoundManager().loadSound(this, "demonstar/sound/bomb2.mp3", false, false);
 	}
 
 	@Override
@@ -101,6 +100,8 @@ public class DemonStar extends Activity {
 		protected final World bxWorld;
 		private CCSprite mFighterA;
 		Body bxSpriteBody;
+		CCAnimation _animA;
+		CCAnimation _animB;
 		public GameLayer(){
         	setTouchEnabled(true);
         	setAccelerometerEnabled(true);
@@ -111,53 +112,54 @@ public class DemonStar extends Activity {
         	Vec2 upper = new Vec2(	scaledWidth + BUFFER, 
         							scaledHeight + BUFFER);
         	Vec2 gravity = new Vec2(0f, 0f);         
-        	bxWorld = new World(new AABB(lower, upper), gravity, true);
+        	bxWorld = new World(new AABB(lower, upper), gravity, false);
         	
-        	BodyDef bxGroundTopDef = new BodyDef();
-        	bxGroundTopDef.position.set(	s.width/(2*PTM_RATIO),
-        									10/(2*PTM_RATIO));
-        	Body bxGroundTop = bxWorld.createBody(bxGroundTopDef);  
-            PolygonDef bxGroundTopEdgeDef = new PolygonDef();
-            bxGroundTopEdgeDef.setAsBox((s.width-10)/(2*PTM_RATIO), 
-            								10/(2*PTM_RATIO));
-            bxGroundTopEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
-            bxGroundTop.createShape(bxGroundTopEdgeDef);
-            
-         	BodyDef bxGroundLeftDef = new BodyDef();
-         	bxGroundLeftDef.position.set(	10/(2*PTM_RATIO),
-         									s.height/(2*PTM_RATIO));
-        	Body bxGroundLeft = bxWorld.createBody(bxGroundLeftDef);
-        	PolygonDef bxGroundLeftEdgeDef = new PolygonDef();
-        	bxGroundLeftEdgeDef.setAsBox(	10/(2*PTM_RATIO), 
-											(s.height-10)/(2*PTM_RATIO));
-        	bxGroundLeftEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
-        	bxGroundLeft.createShape(bxGroundLeftEdgeDef);
-
-        	BodyDef bxGroundBottomDef = new BodyDef();
-        	bxGroundBottomDef.position.set(	s.width/(2*PTM_RATIO),
-											(s.height-5)/PTM_RATIO);
-        	PolygonDef bxGroundBottomEdgeDef = new PolygonDef();
-        	bxGroundBottomEdgeDef.setAsBox((s.width-10)/(2*PTM_RATIO), 
-        									10/(2*PTM_RATIO));
-        	bxGroundBottomEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
-        	Body bxGroundBottom = bxWorld.createBody(bxGroundBottomDef);
-        	bxGroundBottom.createShape(bxGroundBottomEdgeDef);
-        	
-        	BodyDef bxGroundRightDef = new BodyDef();
-        	bxGroundRightDef.position.set(	(s.width-5)/PTM_RATIO,
-											s.height/(2*PTM_RATIO));
-        	Body bxGroundRight = bxWorld.createBody(bxGroundRightDef);
-        	PolygonDef bxGroundRightEdgeDef = new PolygonDef();
-        	bxGroundRightEdgeDef.setAsBox(	10/(2*PTM_RATIO), 
-        									(s.height-10)/(2*PTM_RATIO));
-        	bxGroundRightEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
-        	bxGroundRight.createShape(bxGroundRightEdgeDef);
+//        	BodyDef bxGroundTopDef = new BodyDef();
+//        	bxGroundTopDef.position.set(	s.width/(2*PTM_RATIO),
+//        									10/(2*PTM_RATIO));
+//        	Body bxGroundTop = bxWorld.createBody(bxGroundTopDef);  
+//            PolygonDef bxGroundTopEdgeDef = new PolygonDef();
+//            bxGroundTopEdgeDef.setAsBox((s.width-10)/(2*PTM_RATIO), 
+//            								10/(2*PTM_RATIO));
+//            bxGroundTopEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
+//            bxGroundTop.createShape(bxGroundTopEdgeDef);
+//            
+//         	BodyDef bxGroundLeftDef = new BodyDef();
+//         	bxGroundLeftDef.position.set(	10/(2*PTM_RATIO),
+//         									s.height/(2*PTM_RATIO));
+//        	Body bxGroundLeft = bxWorld.createBody(bxGroundLeftDef);
+//        	PolygonDef bxGroundLeftEdgeDef = new PolygonDef();
+//        	bxGroundLeftEdgeDef.setAsBox(	10/(2*PTM_RATIO), 
+//											(s.height-10)/(2*PTM_RATIO));
+//        	bxGroundLeftEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
+//        	bxGroundLeft.createShape(bxGroundLeftEdgeDef);
+//
+//        	BodyDef bxGroundBottomDef = new BodyDef();
+//        	bxGroundBottomDef.position.set(	s.width/(2*PTM_RATIO),
+//											(s.height-5)/PTM_RATIO);
+//        	PolygonDef bxGroundBottomEdgeDef = new PolygonDef();
+//        	bxGroundBottomEdgeDef.setAsBox((s.width-10)/(2*PTM_RATIO), 
+//        									10/(2*PTM_RATIO));
+//        	bxGroundBottomEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
+//        	Body bxGroundBottom = bxWorld.createBody(bxGroundBottomDef);
+//        	bxGroundBottom.createShape(bxGroundBottomEdgeDef);
+//        	
+//        	BodyDef bxGroundRightDef = new BodyDef();
+//        	bxGroundRightDef.position.set(	(s.width-5)/PTM_RATIO,
+//											s.height/(2*PTM_RATIO));
+//        	Body bxGroundRight = bxWorld.createBody(bxGroundRightDef);
+//        	PolygonDef bxGroundRightEdgeDef = new PolygonDef();
+//        	bxGroundRightEdgeDef.setAsBox(	10/(2*PTM_RATIO), 
+//        									(s.height-10)/(2*PTM_RATIO));
+//        	bxGroundRightEdgeDef.filter.groupIndex = GameLayer.BOX_GROUP_INDEX;
+//        	bxGroundRight.createShape(bxGroundRightEdgeDef);
 
             
             mFighterA = CCSprite.sprite("demonstar/image/fighterA_0.png");
-            CCAnimation anim = CCAnimation.animation("fighterA",0.1f,"demonstar/image/fighterA_0.png","demonstar/image/fighterA_1.png");
+            _animA = CCAnimation.animation("fighterA",0.1f,"demonstar/image/fighterA_0.png","demonstar/image/fighterA_1.png");
+            _animB = CCAnimation.animation("fighterB",0.1f,"demonstar/image/fighterB_0.png","demonstar/image/fighterB_1.png");
             mFighterA.setPosition(s.width/2,s.height/2);
-            mFighterA.runAction(CCRepeatForever.action(CCAnimate.action(anim)));
+            mFighterA.runAction(CCRepeatForever.action(CCAnimate.action(_animA)));
             addChild(mFighterA, -1);
             
         	BodyDef bxSpriteBodyDef = new BodyDef();
@@ -176,29 +178,58 @@ public class DemonStar extends Activity {
 	    	
 	    	bxWorld.setContactListener(new GameContactListener());
 	    	bxWorld.setContactFilter(new GameContactFilter());
+	    	schedule("createEnemy",10);
  		}
 
-		private ArrayBlockingQueue<Body> _discardedBullets = new ArrayBlockingQueue<Body>(10,false);
+		private ArrayBlockingQueue<Body> _discardeds = new ArrayBlockingQueue<Body>(10,false);
         public void tick(float delta) {
         	Body db;
-        	while((db =_discardedBullets.poll())!=null){
+        	while((db =_discardeds.poll())!=null){
         		bxWorld.destroyBody(db);
-        		removeChild((Bullet)db.getUserData(),true);
+        		removeChild((CCNode)db.getUserData(),true);
         	}
         	synchronized (bxWorld) {
         		bxWorld.step(delta, 8);
+        	}
+        	CCSize s = CCDirector.sharedDirector().winSize();
+        	float x = bxSpriteBody.getPosition().x * PTM_RATIO;
+        	float y = bxSpriteBody.getPosition().y * PTM_RATIO;
+        	boolean change = false;
+        	if(x > s.width - mFighterA.width()/2 && bxSpriteBody.m_linearVelocity.x>0){
+        		x = s.width - mFighterA.width()/2;
+        		change = true;
+        	}
+        	if(x < mFighterA.width()/2 && bxSpriteBody.m_linearVelocity.x<0){
+        		x = mFighterA.width()/2;
+        		change = true;
+        	}
+        	if(y < mFighterA.height()/2 && bxSpriteBody.m_linearVelocity.y<0){
+        		y = mFighterA.height()/2;
+        		change = true;
+        	}
+        	if(y>s.height - mFighterA.height()/2 && bxSpriteBody.m_linearVelocity.y>0){
+        		y = s.height - mFighterA.height()/2;
+        		change = true;
+        	}
+        	if(change){
+        		bxSpriteBody.setXForm(new Vec2(x/PTM_RATIO, y/PTM_RATIO), 0);
+        		bxSpriteBody.setLinearVelocity(new Vec2(0,0));
         	}
         	// Iterate over the bodies in the physics world
         	for (Body b = bxWorld.getBodyList(); b != null; b = b.getNext()) {
         		Object userData = b.getUserData();
         		if (userData != null) {
         			if(userData instanceof CCSprite){
-	        			CCSprite sprite = (CCSprite)userData;
-	        			sprite.setPosition(b.getPosition().x * PTM_RATIO, b.getPosition().y * PTM_RATIO);
-	        			sprite.setRotation(-1.0f * CCUtils.CC_RADIANS_TO_DEGREES(b.getAngle()));
+        				if(b.isFrozen()){
+        					_discardeds.add(b);
+        				}else{
+        					CCSprite sprite = (CCSprite)userData;
+        					sprite.setPosition(b.getPosition().x * PTM_RATIO, b.getPosition().y * PTM_RATIO);
+        					sprite.setRotation(-1.0f * CCUtils.CC_RADIANS_TO_DEGREES(b.getAngle()));
+        				}
         			}else if(userData instanceof Bullet){
         				if(b.isFrozen()){
-        					_discardedBullets.add(b);
+        					_discardeds.add(b);
         				}else{
 	        				Bullet bullet = (Bullet)userData;
 	        				bullet.setPosition(b.getPosition().x * PTM_RATIO, b.getPosition().y * PTM_RATIO);
@@ -224,38 +255,54 @@ public class DemonStar extends Activity {
 		@Override
 		public void draw(GL10 gl) {
 			super.draw(gl);
-			gl.glDisable(GL10.GL_TEXTURE_2D);
-			gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-			gl.glLineWidth(2);
-			gl.glColor4f(1f, 1f, 1f, 1f);
-            CCSize s = CCDirector.sharedDirector().winSize();
-   	     
-            CCRect rc = CCRect.make(5, 0, s.width-10, 10);
-            CCPrimitives.drawRect(gl, rc);
-            
-            rc.setAll(0, 5, 10, s.height-10);
-            CCPrimitives.drawRect(gl, rc);
-            
-            rc.setAll(5, s.height-10, s.width-10, 10);
-            CCPrimitives.drawRect(gl, rc);
-            
-            rc.setAll(s.width-10, 5, 10, s.height-10);
-            CCPrimitives.drawRect(gl, rc);
- 
-			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-            gl.glEnable(GL10.GL_TEXTURE_2D);
+//			gl.glDisable(GL10.GL_TEXTURE_2D);
+//			gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+//			gl.glLineWidth(2);
+//			gl.glColor4f(1f, 1f, 1f, 1f);
+//            CCSize s = CCDirector.sharedDirector().winSize();
+//   	     
+//            CCRect rc = CCRect.make(5, 0, s.width-10, 10);
+//            CCPrimitives.drawRect(gl, rc);
+//            
+//            rc.setAll(0, 5, 10, s.height-10);
+//            CCPrimitives.drawRect(gl, rc);
+//            
+//            rc.setAll(5, s.height-10, s.width-10, 10);
+//            CCPrimitives.drawRect(gl, rc);
+//            
+//            rc.setAll(s.width-10, 5, 10, s.height-10);
+//            CCPrimitives.drawRect(gl, rc);
+// 
+//			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+//            gl.glEnable(GL10.GL_TEXTURE_2D);
 		}
 
 		@Override
 		public boolean accelerometerChanged(float accelX, float accelY,
 				float accelZ) {
 			synchronized (bxWorld) {
-				if (bxSpriteBody.isSleeping() == false){
+				//if (bxSpriteBody.isSleeping() == false){
 					CCPoint vec = CCDirector.sharedDirector().convertAccelerometer(accelX, accelY);
-					Vec2 impulse = new Vec2(-vec.x, -vec.y);
-					Vec2 point = new Vec2( mFighterA.width()/2, mFighterA.height()/2);
-					bxSpriteBody.applyForce(impulse, point);
-				}
+//					Vec2 impulse = new Vec2(-vec.x, -vec.y);
+//					Vec2 point = new Vec2( mFighterA.width()/2, mFighterA.height()/2);
+//					bxSpriteBody.applyForce(impulse, point);
+					float x,y;
+					if(vec.x<-1)
+						x = 5;
+					else if(vec.x>1)
+						x = -5;
+					else
+						x = 0;
+					if(vec.y < -1.5)
+						y = 5;
+					else if(vec.y > 1.5)
+						y = -5;
+					else
+						y = 0;
+					Vec2 velocity = new Vec2(x,y);
+					bxSpriteBody.setLinearVelocity(velocity);
+				//}
+				
 			}
 			return true;
 		}
@@ -285,7 +332,7 @@ public class DemonStar extends Activity {
 	        	BodyDef bxBulletBodyDef = new BodyDef();
 	        	bxBulletBodyDef.userData = bullet;
 	        	bxBulletBodyDef.position.set(mFighterA.position().x/PTM_RATIO, mFighterA.position().y/PTM_RATIO);
-
+	        	
 	        	CircleDef bxBulletCircleDef = new CircleDef();
 	        	bxBulletCircleDef.radius = 2/PTM_RATIO;        	
 	        	bxBulletCircleDef.density = 1f;
@@ -296,11 +343,11 @@ public class DemonStar extends Activity {
 	        	bxBulletBody.createShape(bxBulletCircleDef);
 	        	bxBulletBody.setMassFromShapes();
 	        	if(i == 0){
-	        		bxBulletBody.setLinearVelocity(new Vec2(-1f,1f));
+	        		bxBulletBody.setLinearVelocity(new Vec2(-10f,10f));
 	        	}else if(i == 1){
-	        		bxBulletBody.setLinearVelocity(new Vec2(0f,1.414f));
+	        		bxBulletBody.setLinearVelocity(new Vec2(0f,1.414f*10));
 	        	}else if(i == 2){
-	        		bxBulletBody.setLinearVelocity(new Vec2(1f,1f));
+	        		bxBulletBody.setLinearVelocity(new Vec2(10f,10f));
 	        	}
 			}
 		}
@@ -311,8 +358,36 @@ public class DemonStar extends Activity {
 			if(_isShooting)
 				SoundManager.sharedSoundManager().playSound("demonstar/sound/bullet1.mp3");	
 		}
+		
+		public void createEnemy(float dt){
+			CCSize s = CCDirector.sharedDirector().winSize();
+			for(int i=0; i<3; ++i){
+				CCSprite enemy = CCSprite.sprite("demonstar/image/fighterB_0.png");        
+	            enemy.setPosition(i*106+36, s.height);
+	            enemy.setRotation(180);
+	            enemy.runAction(CCRepeatForever.action(CCAnimate.action(_animB)));
+				addChild(enemy,-1);
+				
+	        	BodyDef bxEnemyBodyDef = new BodyDef();
+	        	bxEnemyBodyDef.userData = enemy;
+	        	bxEnemyBodyDef.position.set((i*106+36)/PTM_RATIO, s.height/PTM_RATIO);
+	        	bxEnemyBodyDef.angle = CCUtils.CC_DEGREES_TO_RADIANS(180);
+	        	PolygonDef bxEnemyPolygonDef = new PolygonDef();
+	        	bxEnemyPolygonDef.setAsBox(enemy.width()/(2*PTM_RATIO), enemy.height()/(2*PTM_RATIO));
+	        	bxEnemyPolygonDef.density = 2.0f;
+	        	bxEnemyPolygonDef.restitution = 0;
+	        	bxEnemyPolygonDef.filter.groupIndex = ENEMY_GROUP_INDEX;
+	        	
+	        	Body bxEnemyBody = bxWorld.createBody(bxEnemyBodyDef);
+	        	bxEnemyBody.createShape(bxEnemyPolygonDef);
+	        	bxEnemyBody.setMassFromShapes();
+	        	
+	        	bxEnemyBody.setLinearVelocity(new Vec2(0f,-3f));
+		}
 	}
 	
+	
+		
 	public class Bullet extends CCNode{
 
 		@Override
@@ -328,6 +403,8 @@ public class DemonStar extends Activity {
 		}	
 	}
 
+
+	
 	class GameContactListener implements ContactListener{
 
 		@Override
@@ -369,5 +446,5 @@ public class DemonStar extends Activity {
 		}
 		
 	}
-	
+	}
 }
