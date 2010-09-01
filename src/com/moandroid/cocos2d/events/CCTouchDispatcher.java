@@ -13,17 +13,38 @@ public class CCTouchDispatcher {
 		return _sharedDispatcher;
 	}
 	
+	public CCTouchDispatcher(){
+		_purged = false;
+		set_dispatchEvents(true);
+		_toAdd = false;
+		_toRemove = false;
+		_toQuit = false;
+		_locked = false;
+//		_targetedHandlers = new ArrayList<CCTouchHandler>(8);
+		_standardHandlers = new ArrayList<CCTouchHandler>(4);
+		_handlersToAdd = new ArrayList<CCTouchHandler>(8);
+		_handlersToRemove = new ArrayList<CCTouchDelegate>(8);
+	}
+	
+	private static boolean _purged;
 	public static void purgeSharedDispatcher() {
 		if(_sharedDispatcher != null){
-			_sharedDispatcher.removeAllDelegates();
+			_sharedDispatcher.set_dispatchEvents(false);
+			_sharedDispatcher._standardHandlers.clear();
+			_sharedDispatcher._standardHandlers = null;
+//			_sharedDispatcher._targetedHandlers.clear();
+//			_sharedDispatcher._targetedHandlers = null;		
+			_sharedDispatcher._handlersToAdd.clear();
+			_sharedDispatcher._handlersToAdd = null;
+			_sharedDispatcher._handlersToRemove.clear();
+			_sharedDispatcher._handlersToRemove = null;			
 			_sharedDispatcher = null;
+			_purged = true;
 		}
 	}
+
 	
-	public CCTouchDispatcher(){
-	}
-	
-	private boolean _dispatchEvents = true;
+	private boolean _dispatchEvents;
 	public boolean _dispatchEvents(){
 		return _dispatchEvents;
 	}
@@ -31,15 +52,15 @@ public class CCTouchDispatcher {
 		_dispatchEvents = b;
 	}
 
-	private ArrayList<CCTouchHandler> _targetedHandlers = new ArrayList<CCTouchHandler>(8);
-	private ArrayList<CCTouchHandler> _standardHandlers = new ArrayList<CCTouchHandler>(4);
-	private ArrayList<CCTouchHandler> _handlersToAdd = new ArrayList<CCTouchHandler>(8);
-	private ArrayList<CCTouchDelegate> _handlersToRemove = new ArrayList<CCTouchDelegate>(8);
+//	private ArrayList<CCTouchHandler> _targetedHandlers;
+	private ArrayList<CCTouchHandler> _standardHandlers;
+	private ArrayList<CCTouchHandler> _handlersToAdd;
+	private ArrayList<CCTouchDelegate> _handlersToRemove;
 	
-	private boolean _toAdd = false;
-	private boolean _toRemove = false;
-	private boolean _toQuit = false;
-	private boolean _locked = false;
+	private boolean _toAdd;
+	private boolean _toRemove;
+	private boolean _toQuit;
+	private boolean _locked;
 		
 	private void forceAddHandler(CCTouchHandler handler, ArrayList<CCTouchHandler> array){
 		int i = 0;
@@ -52,7 +73,7 @@ public class CCTouchDispatcher {
 		array.add(i, handler);
 	}
 
-	public void addDelegate(CCStandardTouchDelegate delegate, int priority){
+	public /*synchronized*/ void addDelegate(CCStandardTouchDelegate delegate, int priority){
 		CCTouchHandler handler = CCStandardTouchHandler.handler(delegate, priority);
 		if(!_locked){
 			forceAddHandler(handler, _standardHandlers);
@@ -62,23 +83,23 @@ public class CCTouchDispatcher {
 		}
 	}
 	
-	public void addDeleget(CCTargetedTouchDelegate delegate, int priority){
-		CCTouchHandler handler = CCTargetedTouchHandler.handler(delegate, priority);
-		if(!_locked){
-			forceAddHandler(handler, _targetedHandlers);
-		}else{
-			_handlersToAdd.add(handler);
-			_toAdd = true;
-		}
-	}	
+//	public void addDeleget(CCTargetedTouchDelegate delegate, int priority){
+//		CCTouchHandler handler = CCTargetedTouchHandler.handler(delegate, priority);
+//		if(!_locked){
+//			forceAddHandler(handler, _targetedHandlers);
+//		}else{
+//			_handlersToAdd.add(handler);
+//			_toAdd = true;
+//		}
+//	}	
 	
 	private void forceRemoveDelegate(CCTouchDelegate delegate){
-		for(CCTouchHandler handler : _targetedHandlers){
-			if(handler.delegate() == delegate){
-				_targetedHandlers.remove(handler);
-				break;
-			}
-		}
+//		for(CCTouchHandler handler : _targetedHandlers){
+//			if(handler.delegate() == delegate){
+//				_targetedHandlers.remove(handler);
+//				break;
+//			}
+//		}
 		for(CCTouchHandler handler : _standardHandlers){
 			if(handler.delegate() == delegate){
 				_standardHandlers.remove(handler);
@@ -87,7 +108,7 @@ public class CCTouchDispatcher {
 		}
 	}
 
-	public void removeDelegate(CCTouchDelegate delegate){
+	public /*synchronized*/ void removeDelegate(CCTouchDelegate delegate){
 		if(delegate == null)
 			return;
 		if(!_locked){
@@ -100,10 +121,10 @@ public class CCTouchDispatcher {
 	
 	private void forceRemoveAllDelegates(){
 		_standardHandlers.clear();
-		_targetedHandlers.clear();
+//		_targetedHandlers.clear();
 	}
 	
-	public void removeAllDelegates(){
+	public /*synchronized*/ void removeAllDelegates(){
 		if(!_locked)
 			forceRemoveAllDelegates();
 		else
@@ -114,7 +135,7 @@ public class CCTouchDispatcher {
 //		
 //	}
 	
-	private void updateHandlers(){
+	private /*synchronized*/ void updateHandlers(){
 		if(_toRemove){
 			_toRemove = false;
 			for(CCTouchDelegate delegate : _handlersToRemove){
@@ -125,11 +146,11 @@ public class CCTouchDispatcher {
 		if(_toAdd){
 			_toAdd = false;
 			for(CCTouchHandler handler : _handlersToAdd){
-				if(handler instanceof CCTargetedTouchHandler){
-					forceAddHandler(handler, _targetedHandlers);
-				}else if(handler instanceof CCStandardTouchHandler){
+//				if(handler instanceof CCTargetedTouchHandler){
+//					forceAddHandler(handler, _targetedHandlers);
+//				}else if(handler instanceof CCStandardTouchHandler){
 					forceAddHandler(handler, _standardHandlers);
-				}
+//				}
 			}
 			_handlersToAdd.clear();
 		}
@@ -140,78 +161,110 @@ public class CCTouchDispatcher {
 	}
 	
 	public void touchesBegan(MotionEvent event) {
-		//Log.v(LOG_TAG, "touchesBegan b");
+		CCTouchEvent tevent = new CCTouchEvent();
+		tevent.type = CCEvent.CC_EVENT_TOUCHES_BEGAN;
+		tevent.x = event.getX();
+		tevent.y = event.getY();
+		CCEventManager.sharedManager().addEvent(tevent);
+	}
+	
+	public void touchesMoved(MotionEvent event) {
+		CCTouchEvent tevent = new CCTouchEvent();
+		tevent.type = CCEvent.CC_EVENT_TOUCHES_MOVED;
+		tevent.x = event.getX();
+		tevent.y = event.getY();
+		CCEventManager.sharedManager().addEvent(tevent);
+	}
+
+	public void touchesEnded(MotionEvent event) {
+		CCTouchEvent tevent = new CCTouchEvent();
+		tevent.type = CCEvent.CC_EVENT_TOUCHES_ENDED;
+		tevent.x = event.getX();
+		tevent.y = event.getY();
+		CCEventManager.sharedManager().addEvent(tevent);
+	}
+	
+	public void touchesCancelled(MotionEvent event) {
+		CCTouchEvent tevent = new CCTouchEvent();
+		tevent.type = CCEvent.CC_EVENT_TOUCHES_CANCELLED;
+		tevent.x = event.getX();
+		tevent.y = event.getY();
+		CCEventManager.sharedManager().addEvent(tevent);
+	}
+
+	public void touchesBegan(CCEvent event) {
+		if(_purged)return;
 		_locked = true;
+		updateHandlers();
 		if(_dispatchEvents){
-            for( CCTouchHandler handler : _targetedHandlers ) {
-                if( handler.delegate().touchesBegan(event))
-                    break;
-            }
+//            for( CCTouchHandler handler : _targetedHandlers ) {
+//                if( handler.delegate().touchesBegan(event))
+//                    break;
+//            }
             
             for( CCTouchHandler handler : _standardHandlers){
                 if( handler.delegate().touchesBegan(event))
                     break;
             }
 		}
-		updateHandlers();
 		_locked = false;
-		//Log.v(LOG_TAG, "touchesBegan e");
-	}
-	
-	public void touchesMoved(MotionEvent event) {
-		//Log.v(LOG_TAG, "touchesMoved b");
-		_locked = true;
-		if(_dispatchEvents){
-            for( CCTouchHandler handler : _targetedHandlers ) {
-                if( handler.delegate().touchesMoved(event))
-                    break;
-            }
-            
-            for( CCTouchHandler handler : _standardHandlers){
-                if( handler.delegate().touchesMoved(event))
-                    break;
-            }
-		}	
-		updateHandlers();
-		_locked = false;
-		//Log.v(LOG_TAG, "touchesMoved e");
+		
 	}
 
-	public void touchesEnded(MotionEvent event) {
-		//Log.v(LOG_TAG, "touchesEnded b");
+	public void touchesMoved(CCEvent event) {
+		if(_purged)return;
 		_locked = true;
+		updateHandlers();
 		if(_dispatchEvents){
-            for( CCTouchHandler handler : _targetedHandlers ) {
-                if( handler.delegate().touchesEnded(event))
-                    break;
-            }
+//            for( CCTouchHandler handler : _targetedHandlers ) {
+//                if( handler.delegate().touchesMoved(event))
+//                    break;
+//            }
             
             for( CCTouchHandler handler : _standardHandlers){
-                if( handler.delegate().touchesEnded(event))
+                if( handler.delegate().touchesMoved(event))
                     break;
             }
-		}	
-		updateHandlers();
+		}
 		_locked = false;
-		//Log.v(LOG_TAG, "touchesEnded e");
 	}
-	
-	public void touchesCancelled(MotionEvent event) {
-		//Log.v(LOG_TAG, "touchesCancelled b");
+
+	public void touchesEnded(CCEvent event) {
+		if(_purged)return;
 		_locked = true;
+		updateHandlers();
 		if(_dispatchEvents){
-            for( CCTouchHandler handler : _targetedHandlers ) {
-                if( handler.delegate().touchesCancelled(event))
+//            for( CCTouchHandler handler : _targetedHandlers ) {
+//                if( handler.delegate().touchesEnded(event))
+//                    break;
+//            }
+            
+            for( CCTouchHandler handler : _standardHandlers){
+                if( handler.delegate().touchesEnded(event))
                     break;
             }
+		}	
+
+		_locked = false;	
+	}
+
+	public void touchesCancelled(CCEvent event) {
+		if(_purged)return;
+		_locked = true;
+		updateHandlers();
+		if(_dispatchEvents){
+//            for( CCTouchHandler handler : _targetedHandlers ) {
+//                if( handler.delegate().touchesCancelled(event))
+//                    break;
+//            }
             
             for( CCTouchHandler handler : _standardHandlers){
                 if( handler.delegate().touchesCancelled(event))
                     break;
             }
 		}	
-		updateHandlers();
+
 		_locked = false;
-		//Log.v(LOG_TAG, "touchesCancelled e");
+		
 	}
 }

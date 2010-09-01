@@ -1,9 +1,8 @@
 package com.moandroid.cocos2d.nodes;
 
-import android.view.MotionEvent;
-
 import com.moandroid.cocos2d.events.CCAccelerometerDelegate;
 import com.moandroid.cocos2d.events.CCAccelerometerDispatcher;
+import com.moandroid.cocos2d.events.CCEvent;
 import com.moandroid.cocos2d.events.CCStandardTouchDelegate;
 import com.moandroid.cocos2d.events.CCTouchDispatcher;
 import com.moandroid.cocos2d.renderers.CCDirector;
@@ -80,19 +79,19 @@ public class CCLayer extends CCNode
 	}
 	
 	@Override
-	public boolean touchesBegan(MotionEvent event) {
+	public boolean touchesBegan(CCEvent event) {
 		return false;
 	}
 	@Override
-	public boolean touchesCancelled(MotionEvent event) {
+	public boolean touchesCancelled(CCEvent event) {
 		return false;
 	}
 	@Override
-	public boolean touchesEnded(MotionEvent event) {
+	public boolean touchesEnded(CCEvent event) {
 		return false;
 	}
 	@Override
-	public boolean touchesMoved(MotionEvent event) {
+	public boolean touchesMoved(CCEvent event) {
 		return false;
 	}
 

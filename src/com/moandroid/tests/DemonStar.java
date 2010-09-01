@@ -1,6 +1,6 @@
 package com.moandroid.tests;
 
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -19,13 +19,12 @@ import org.jbox2d.dynamics.contacts.ContactResult;
 
 import com.moandroid.cocos2d.actions.CCFiniteTimeAction;
 import com.moandroid.cocos2d.actions.CCRepeatForever;
-import com.moandroid.cocos2d.actions.CCScheduler;
-import com.moandroid.cocos2d.actions.CCTimer;
 import com.moandroid.cocos2d.actions.instant.CCCallFunc;
 import com.moandroid.cocos2d.actions.interval.CCAnimate;
 import com.moandroid.cocos2d.actions.interval.CCDelayTime;
 import com.moandroid.cocos2d.actions.interval.CCSequence;
 import com.moandroid.cocos2d.animation.CCAnimation;
+import com.moandroid.cocos2d.events.CCEvent;
 import com.moandroid.cocos2d.nodes.CCLayer;
 import com.moandroid.cocos2d.nodes.CCNode;
 import com.moandroid.cocos2d.nodes.scenes.CCScene;
@@ -41,7 +40,6 @@ import com.moandroid.sound.SoundManager;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -181,16 +179,16 @@ public class DemonStar extends Activity {
 	    	schedule("createEnemy",10);
  		}
 
-		private ArrayBlockingQueue<Body> _discardeds = new ArrayBlockingQueue<Body>(10,false);
+		private LinkedBlockingQueue<Body> _discardeds = new LinkedBlockingQueue<Body>(10);
         public void tick(float delta) {
         	Body db;
         	while((db =_discardeds.poll())!=null){
         		bxWorld.destroyBody(db);
         		removeChild((CCNode)db.getUserData(),true);
         	}
-        	synchronized (bxWorld) {
-        		bxWorld.step(delta, 8);
-        	}
+//        	synchronized (bxWorld) {
+        		bxWorld.step(delta, 6);
+//        	}
         	CCSize s = CCDirector.sharedDirector().winSize();
         	float x = bxSpriteBody.getPosition().x * PTM_RATIO;
         	float y = bxSpriteBody.getPosition().y * PTM_RATIO;
@@ -280,7 +278,7 @@ public class DemonStar extends Activity {
 		@Override
 		public boolean accelerometerChanged(float accelX, float accelY,
 				float accelZ) {
-			synchronized (bxWorld) {
+//			synchronized (bxWorld) {
 				//if (bxSpriteBody.isSleeping() == false){
 					CCPoint vec = CCDirector.sharedDirector().convertAccelerometer(accelX, accelY);
 //					Vec2 impulse = new Vec2(-vec.x, -vec.y);
@@ -303,13 +301,13 @@ public class DemonStar extends Activity {
 					bxSpriteBody.setLinearVelocity(velocity);
 				//}
 				
-			}
+//			}
 			return true;
 		}
 
 		private boolean _isShooting = false;
 		@Override
-		public boolean touchesBegan(MotionEvent event) {
+		public boolean touchesBegan(CCEvent event) {
 			if(!_isShooting){
 				_isShooting = true;
 				SoundManager.sharedSoundManager().playSound("demonstar/sound/bullet1.mp3");

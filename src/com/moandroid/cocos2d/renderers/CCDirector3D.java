@@ -2,7 +2,13 @@ package com.moandroid.cocos2d.renderers;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import android.content.Context;
+
 public class CCDirector3D extends CCDirector {
+
+	protected CCDirector3D(Context context) {
+		super(context);
+	}
 
 	@Override
 	protected void initGLDefaultValues(GL10 gl) {

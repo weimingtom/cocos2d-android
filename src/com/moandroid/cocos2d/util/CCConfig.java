@@ -7,5 +7,9 @@ public class CCConfig {
 	public static final boolean CC_DIRECTOR_ENABLE_PROFILERS = false;
 
 	public static final boolean CC_SURFACE_USE_GL_DEBUG_WRAPPER = false;
-	public static final long CC_DIRECTOR_MIN_UPDATE_DELAY = 1000 / 33;
+	
+	public static final float CC_DIRECTOR_SLOWEST_UPDATE_DELAY = 1f / 30f;
+	public static final float CC_DIRECTOR_FASTEST_UPDATE_DELAY = 1f / 60f;
+	public static final float CC_DIRECTOR_NORMAL_UPDATE_DELAY  = 1f / 40f;
+	public static float CC_DIRECTOR_UPDATE_DELAY  = CC_DIRECTOR_SLOWEST_UPDATE_DELAY;
 }

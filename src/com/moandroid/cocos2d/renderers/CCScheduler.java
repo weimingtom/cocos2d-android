@@ -1,6 +1,8 @@
-package com.moandroid.cocos2d.actions;
+package com.moandroid.cocos2d.renderers;
 
 import java.util.ArrayList;
+
+import com.moandroid.cocos2d.actions.CCTimer;
 
 
 public class CCScheduler {
@@ -13,17 +15,23 @@ public class CCScheduler {
             return _sharedScheduler;
     }
 
+//    private static boolean _purged;
 	public static void purgeSharedScheduler() {
 		if(_sharedScheduler != null){
 			_sharedScheduler.removeAllSchedul();
 			_sharedScheduler = null;
+//			_purged = true;
 		}
 	}
 	
     protected CCScheduler() {
-    	synchronized(CCScheduler.class){
-    		
-    	}
+//    	synchronized(CCScheduler.class){
+//    		_purged = false;
+    		_scheduledMethods = new ArrayList<CCTimer>(50);
+    	    _methodsToRemove = new ArrayList<CCTimer>(20);
+    	    _methodsToAdd = new ArrayList<CCTimer>(20);
+    	    _timeScale = 1.0f;
+//    	}
     }
     
     protected void removeAllSchedul(){
@@ -32,11 +40,11 @@ public class CCScheduler {
     	_methodsToAdd.clear();
     }
     
-   	ArrayList<CCTimer> _scheduledMethods = new ArrayList<CCTimer>(50);
-    ArrayList<CCTimer> _methodsToRemove = new ArrayList<CCTimer>(20);
-    ArrayList<CCTimer> _methodsToAdd = new ArrayList<CCTimer>(20);
+   	ArrayList<CCTimer> _scheduledMethods;
+    ArrayList<CCTimer> _methodsToRemove;
+    ArrayList<CCTimer> _methodsToAdd;
 
-    private float _timeScale = 1.0f;
+    private float _timeScale;
 
     public float timeScale() {
         return _timeScale;
@@ -73,6 +81,7 @@ public class CCScheduler {
 	 }
 
     public void tick(float dt) {
+//    	if(_purged) return;
         if (_timeScale != 1.0f)
 	            dt *= _timeScale;
 
