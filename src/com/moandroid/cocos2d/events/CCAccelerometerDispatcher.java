@@ -112,7 +112,7 @@ public class CCAccelerometerDispatcher {
 			Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 			if(sensor!=null){
 				if(enable){
-					sm.registerListener(_listener, sensor, SensorManager.SENSOR_DELAY_UI);
+					sm.registerListener(_listener, sensor, SensorManager.SENSOR_DELAY_GAME);
 					_isAccelerometerEnabled = true;
 				}else{
 					sm.unregisterListener(_listener);

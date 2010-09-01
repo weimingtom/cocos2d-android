@@ -70,4 +70,10 @@ public class CCSprite extends CCTextureNode
 		setTexture(tx);
 		CCTextureCache.sharedTextureCache().retain(tx);
 	}
+	
+	public void deleteSelf(){
+		if(_parent!=null){
+			_parent.removeChild(this, true);
+		}
+	}
 }

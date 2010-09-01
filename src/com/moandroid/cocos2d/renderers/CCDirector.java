@@ -140,7 +140,7 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 			calculateDeltaTime();
 			_step += _dt;
 	        if (!_isPaused && _step > CCConfig.CC_DIRECTOR_UPDATE_DELAY){
-	        	CCScheduler.sharedScheduler().tick(CCConfig.CC_DIRECTOR_UPDATE_DELAY);
+	        	CCScheduler.sharedScheduler().tick(_step);
 	        	_step = 0;
 	        }
 			CCSceneManager.shareManager().runNextScene();
