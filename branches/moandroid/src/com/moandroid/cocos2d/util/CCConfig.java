@@ -8,8 +8,8 @@ public class CCConfig {
 
 	public static final boolean CC_SURFACE_USE_GL_DEBUG_WRAPPER = false;
 	
-	public static final float CC_DIRECTOR_SLOWEST_UPDATE_DELAY = 1f / 30f;
+	public static final float CC_DIRECTOR_SLOWEST_UPDATE_DELAY = 1f / 24f;
 	public static final float CC_DIRECTOR_FASTEST_UPDATE_DELAY = 1f / 60f;
-	public static final float CC_DIRECTOR_NORMAL_UPDATE_DELAY  = 1f / 40f;
-	public static float CC_DIRECTOR_UPDATE_DELAY  = CC_DIRECTOR_SLOWEST_UPDATE_DELAY;
+	public static final float CC_DIRECTOR_NORMAL_UPDATE_DELAY  = 1f / 30f;
+	public static float CC_DIRECTOR_UPDATE_DELAY  = CC_DIRECTOR_NORMAL_UPDATE_DELAY;
 }

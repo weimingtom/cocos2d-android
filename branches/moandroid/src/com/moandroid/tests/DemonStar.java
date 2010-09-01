@@ -1,6 +1,7 @@
 package com.moandroid.tests;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -92,7 +93,7 @@ public class DemonStar extends Activity {
 	private class GameLayer extends CCLayer{
 		protected static final float PTM_RATIO = 24.0f;
 		protected static final float BUFFER = 1.0f;
-		protected static final int BOX_GROUP_INDEX = -1;
+//		protected static final int BOX_GROUP_INDEX = -1;
 		protected static final int SELF_GROUP_INDEX = -2;
 		protected static final int ENEMY_GROUP_INDEX = -3;
 		protected final World bxWorld;
@@ -100,6 +101,7 @@ public class DemonStar extends Activity {
 		Body bxSpriteBody;
 		CCAnimation _animA;
 		CCAnimation _animB;
+		CCAnimation _animC;
 		public GameLayer(){
         	setTouchEnabled(true);
         	setAccelerometerEnabled(true);
@@ -156,6 +158,20 @@ public class DemonStar extends Activity {
             mFighterA = CCSprite.sprite("demonstar/image/fighterA_0.png");
             _animA = CCAnimation.animation("fighterA",0.1f,"demonstar/image/fighterA_0.png","demonstar/image/fighterA_1.png");
             _animB = CCAnimation.animation("fighterB",0.1f,"demonstar/image/fighterB_0.png","demonstar/image/fighterB_1.png");
+            _animC = CCAnimation.animation("fighterC",0.1f,
+            		"demonstar/image/explosion_02.png",
+            		"demonstar/image/explosion_03.png",
+            		"demonstar/image/explosion_04.png",
+            		"demonstar/image/explosion_05.png",
+            		"demonstar/image/explosion_06.png",
+            		"demonstar/image/explosion_07.png",
+            		"demonstar/image/explosion_08.png",
+            		"demonstar/image/explosion_09.png",
+            		"demonstar/image/explosion_10.png",
+            		"demonstar/image/explosion_11.png",
+            		"demonstar/image/explosion_12.png",
+            		"demonstar/image/explosion_13.png",
+            		"demonstar/image/explosion_14.png");
             mFighterA.setPosition(s.width/2,s.height/2);
             mFighterA.runAction(CCRepeatForever.action(CCAnimate.action(_animA)));
             addChild(mFighterA, -1);
@@ -179,13 +195,18 @@ public class DemonStar extends Activity {
 	    	schedule("createEnemy",10);
  		}
 
-		private LinkedBlockingQueue<Body> _discardeds = new LinkedBlockingQueue<Body>(10);
+		private ArrayList<Body> _discardeds = new ArrayList<Body>(10);
         public void tick(float delta) {
-        	Body db;
-        	while((db =_discardeds.poll())!=null){
-        		bxWorld.destroyBody(db);
-        		removeChild((CCNode)db.getUserData(),true);
+        	Iterator<Body> iter = _discardeds.iterator();
+        	while(iter.hasNext()){
+        		Body b = iter.next();
+        		bxWorld.destroyBody(b);
+        		if(b.getUserData() instanceof Bullet)
+        			removeChild((CCNode)b.getUserData(),true);
         	}
+        	_discardeds.clear();
+			Vec2 velocity = new Vec2(_velx, _vely);
+			bxSpriteBody.setLinearVelocity(velocity);
 //        	synchronized (bxWorld) {
         		bxWorld.step(delta, 6);
 //        	}
@@ -275,6 +296,8 @@ public class DemonStar extends Activity {
 //            gl.glEnable(GL10.GL_TEXTURE_2D);
 		}
 
+		private float _velx;
+		private float _vely;
 		@Override
 		public boolean accelerometerChanged(float accelX, float accelY,
 				float accelZ) {
@@ -285,20 +308,20 @@ public class DemonStar extends Activity {
 //					Vec2 point = new Vec2( mFighterA.width()/2, mFighterA.height()/2);
 //					bxSpriteBody.applyForce(impulse, point);
 					float x,y;
-					if(vec.x<-1)
-						x = 5;
-					else if(vec.x>1)
-						x = -5;
+					if(vec.x < -1)
+						x = 4;
+					else if(vec.x > 1)
+						x = -4;
 					else
 						x = 0;
-					if(vec.y < -1.5)
-						y = 5;
-					else if(vec.y > 1.5)
-						y = -5;
+					if(vec.y < -1)
+						y = 4;
+					else if(vec.y > 1)
+						y = -4;
 					else
 						y = 0;
-					Vec2 velocity = new Vec2(x,y);
-					bxSpriteBody.setLinearVelocity(velocity);
+					_velx = x;
+					_vely = y;
 				//}
 				
 //			}
@@ -311,7 +334,7 @@ public class DemonStar extends Activity {
 			if(!_isShooting){
 				_isShooting = true;
 				SoundManager.sharedSoundManager().playSound("demonstar/sound/bullet1.mp3");
-				CCFiniteTimeAction ac = CCSequence.actions(CCCallFunc.action(this,"shotBullet"), CCDelayTime.action(0.5f));
+				CCFiniteTimeAction ac = CCSequence.actions(CCCallFunc.action(this,"shotBullet"), CCDelayTime.action(0.2f));
 				_gameLayer.runAction(CCRepeatForever.action(ac));
 			}else{
 				_isShooting = false;
@@ -322,6 +345,8 @@ public class DemonStar extends Activity {
 		}
 
 		public void shotBullet(){
+			if(mFighterA == null)
+				return;
 			for(int i=0; i<3; ++i){
 				Bullet bullet = new Bullet();
 				addChild(bullet,3);
@@ -359,16 +384,16 @@ public class DemonStar extends Activity {
 		
 		public void createEnemy(float dt){
 			CCSize s = CCDirector.sharedDirector().winSize();
-			for(int i=0; i<3; ++i){
+			for(int i=0; i<18; ++i){
 				CCSprite enemy = CCSprite.sprite("demonstar/image/fighterB_0.png");        
-	            enemy.setPosition(i*106+36, s.height);
+	            enemy.setPosition(i%6*53+10, s.height-i/6*50);
 	            enemy.setRotation(180);
 	            enemy.runAction(CCRepeatForever.action(CCAnimate.action(_animB)));
 				addChild(enemy,-1);
 				
 	        	BodyDef bxEnemyBodyDef = new BodyDef();
 	        	bxEnemyBodyDef.userData = enemy;
-	        	bxEnemyBodyDef.position.set((i*106+36)/PTM_RATIO, s.height/PTM_RATIO);
+	        	bxEnemyBodyDef.position.set((i%6*53+10)/PTM_RATIO, (s.height-i/6*50)/PTM_RATIO);
 	        	bxEnemyBodyDef.angle = CCUtils.CC_DEGREES_TO_RADIANS(180);
 	        	PolygonDef bxEnemyPolygonDef = new PolygonDef();
 	        	bxEnemyPolygonDef.setAsBox(enemy.width()/(2*PTM_RATIO), enemy.height()/(2*PTM_RATIO));
@@ -381,68 +406,96 @@ public class DemonStar extends Activity {
 	        	bxEnemyBody.setMassFromShapes();
 	        	
 	        	bxEnemyBody.setLinearVelocity(new Vec2(0f,-3f));
-		}
-	}
-	
-	
-		
-	public class Bullet extends CCNode{
-
-		@Override
-		public void draw(GL10 gl) {
-			super.draw(gl);
-			gl.glDisable(GL10.GL_TEXTURE_2D);
-			gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-			gl.glColor4f(1f, 0f, 0f, 1f);
-			gl.glPointSize(3f);
-            CCPrimitives.drawPoint(gl, 0, 0);
-			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-            gl.glEnable(GL10.GL_TEXTURE_2D);			
-		}	
-	}
-
-
-	
-	class GameContactListener implements ContactListener{
-
-		@Override
-		public void add(ContactPoint point) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void persist(ContactPoint point) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void remove(ContactPoint point) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void result(ContactResult point) {
-			// TODO Auto-generated method stub
-			
-		}
-	}
-	
-	class GameContactFilter implements ContactFilter{
-
-		@Override
-		public boolean shouldCollide(Shape shape1, Shape shape2) {
-			if(shape1.m_filter.groupIndex == shape2.m_filter.groupIndex)
-				return false;
-			if(		shape1.m_body.getUserData() instanceof Bullet && shape2.m_filter.groupIndex == GameLayer.BOX_GROUP_INDEX||
-					shape2.m_body.getUserData() instanceof Bullet && shape1.m_filter.groupIndex == GameLayer.BOX_GROUP_INDEX){
-				return false;
 			}
-			return true;
 		}
 		
-	}
+		public class Bullet extends CCNode{
+	
+			@Override
+			public void draw(GL10 gl) {
+				super.draw(gl);
+				gl.glDisable(GL10.GL_TEXTURE_2D);
+				gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+				gl.glColor4f(1f, 0f, 0f, 1f);
+				gl.glPointSize(3f);
+	            CCPrimitives.drawPoint(gl, 0, 0);
+				gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+	            gl.glEnable(GL10.GL_TEXTURE_2D);			
+			}	
+		}
+	
+		class GameContactListener implements ContactListener{
+	
+			@Override
+			public void add(ContactPoint point) {
+				Object s1 = (Object)point.shape1.m_body.getUserData();
+				Object s2 = (Object)point.shape2.m_body.getUserData();
+				if(	s1 instanceof Bullet &&
+					s2 instanceof CCSprite){
+					_discardeds.add(point.shape1.m_body);
+					_discardeds.add(point.shape2.m_body);
+					//((CCSprite)s2).runAction(CCAnimate.action(_animC));
+					((CCSprite)s2).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s2,"deleteSelf")));
+					SoundManager.sharedSoundManager().playSound("demonstar/sound/crash.mp3");
+					if((CCSprite)s2 == mFighterA){
+						_gameLayer.stopAllActions();
+						mFighterA = null;
+						SoundManager.sharedSoundManager().stopSound("demonstar/sound/bullet1.mp3");	
+					}
+				}else if(	s2 instanceof Bullet &&
+						 	s1 instanceof CCSprite){
+					_discardeds.add(point.shape1.m_body);
+					_discardeds.add(point.shape2.m_body);
+					((CCSprite)s1).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s1,"deleteSelf")));
+					SoundManager.sharedSoundManager().playSound("demonstar/sound/crash.mp3");	
+					if((CCSprite)s1 == mFighterA){
+						_gameLayer.stopAllActions();
+						mFighterA = null;
+						SoundManager.sharedSoundManager().stopSound("demonstar/sound/bullet1.mp3");	
+					}
+				}else if(	s1 instanceof CCSprite &&
+							s2 instanceof CCSprite){
+					_discardeds.add(point.shape1.m_body);
+					_discardeds.add(point.shape2.m_body);
+					((CCSprite)s1).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s1,"deleteSelf")));
+					((CCSprite)s2).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s2,"deleteSelf")));
+					SoundManager.sharedSoundManager().playSound("demonstar/sound/crash.mp3");	
+					_gameLayer.stopAllActions();
+					SoundManager.sharedSoundManager().stopSound("demonstar/sound/bullet1.mp3");	
+					mFighterA = null;
+				}
+				
+			}
+	
+			@Override
+			public void persist(ContactPoint point) {
+				// TODO Auto-generated method stub
+				
+			}
+	
+			@Override
+			public void remove(ContactPoint point) {
+				// TODO Auto-generated method stub
+				
+			}
+	
+			@Override
+			public void result(ContactResult point) {
+				// TODO Auto-generated method stub
+				
+			}
+		}
+		
+		class GameContactFilter implements ContactFilter{
+	
+			@Override
+			public boolean shouldCollide(Shape shape1, Shape shape2) {
+				if(	shape1.m_filter.groupIndex == shape2.m_filter.groupIndex ||
+					shape1.m_body.getUserData() instanceof Bullet && 
+					shape2.m_body.getUserData() instanceof Bullet)
+					return false;
+				return true;
+			}
+		}
 	}
 }
