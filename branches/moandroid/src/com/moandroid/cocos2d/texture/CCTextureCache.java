@@ -42,17 +42,18 @@ public class CCTextureCache {
 	public static void purgeSharedTextureCache() {
 		if(_sharedTextureCache != null){
 			_sharedTextureCache.removeAllTextures();
+			_sharedTextureCache._textures = null;
 			_sharedTextureCache = null;
 		}
 	}
 	
 	protected CCTextureCache(){
 //		synchronized (CCTextureCache.class) {
-//			
+			_textures = new HashMap<String, CCTexture2D>(10);
 //		}
 	}
 		
-	private HashMap<String, CCTexture2D> _textures = new HashMap<String, CCTexture2D>(10);
+	private HashMap<String, CCTexture2D> _textures;
 	
 	public CCTexture2D getTexture(String fileName) {
 		if(_textures.containsKey(fileName)){

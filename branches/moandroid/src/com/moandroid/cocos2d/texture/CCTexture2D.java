@@ -26,10 +26,19 @@ import com.moandroid.cocos2d.types.CCRect;
 import com.moandroid.cocos2d.types.CCSize;
 
 public class CCTexture2D {
-	
 	public static final String LOG_TAG = CCTexture2D.class.getSimpleName();
-	
 	public static final int kMaxTextureSize = 1024;
+	private static CCTexParams antiAliasTexParams = new CCTexParams(
+			 GL10.GL_LINEAR, 
+			 GL10.GL_LINEAR, 
+			 GL10.GL_CLAMP_TO_EDGE, 
+			 GL10.GL_CLAMP_TO_EDGE);
+	
+	private static CCTexParams aliasTexParams = new CCTexParams(
+			 GL10.GL_NEAREST, 
+			 GL10.GL_NEAREST, 
+			 GL10.GL_CLAMP_TO_EDGE, 
+			 GL10.GL_CLAMP_TO_EDGE);
 	
 	int _width;
 	public int pixelsWide(){
@@ -165,18 +174,6 @@ public class CCTexture2D {
 	private FloatBuffer mCoordinates;
 	Bitmap mBitmap;
 	
-	private static CCTexParams antiAliasTexParams = new CCTexParams(
-			 GL10.GL_LINEAR, 
-			 GL10.GL_LINEAR, 
-			 GL10.GL_CLAMP_TO_EDGE, 
-			 GL10.GL_CLAMP_TO_EDGE);
-	
-	private static CCTexParams aliasTexParams = new CCTexParams(
-			 GL10.GL_NEAREST, 
-			 GL10.GL_NEAREST, 
-			 GL10.GL_CLAMP_TO_EDGE, 
-			 GL10.GL_CLAMP_TO_EDGE);
-
 	private CCTexParams _texParams = antiAliasTexParams;
 	public void setTexParameters(GL10 gl, CCTexParams texParams) {
 		_texParams = texParams;

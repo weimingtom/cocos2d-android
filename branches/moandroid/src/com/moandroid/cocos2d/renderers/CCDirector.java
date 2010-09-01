@@ -6,9 +6,9 @@ import javax.microedition.khronos.opengles.GL10;
 import junit.framework.Assert;
 
 import com.moandroid.cocos2d.actions.CCActionManager;
-import com.moandroid.cocos2d.actions.CCScheduler;
 
 import com.moandroid.cocos2d.events.CCAccelerometerDispatcher;
+import com.moandroid.cocos2d.events.CCEventManager;
 import com.moandroid.cocos2d.events.CCTouchDispatcher;
 import com.moandroid.cocos2d.events.CCTouchInputProtocol;
 
@@ -50,13 +50,48 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		Assert.assertTrue("You have not create an instance of CCDirector!", _sharedDirector != null);
         return _sharedDirector;
 	}
-
-	protected CCDirector(){
-    	synchronized(CCDirector.class){
-
-    	}
+	
+	private static boolean _purged;
+	protected CCDirector(Context context){
+//    	synchronized(CCDirector.class){
+    		_purged = false;
+    		_context = context;
+    		_deviceOrientation = kCCDeviceOrientationLandscapeRight;
+    		_displayFPS = CCConfig.CC_DIRECTOR_SHOW_FPS;
+    		_labelFPS = null;
+    		_texFPS = null;
+    		_nextDeltaTimeZero = true;
+    		WindowManager wm = (WindowManager) _context.getSystemService(Context.WINDOW_SERVICE);
+    		_width = wm.getDefaultDisplay().getWidth();
+    		_height = wm.getDefaultDisplay().getHeight();
+    		CCEventManager.sharedManager();
+//    	}
 	}
-
+	
+	public synchronized void end(){
+		if(CCConfig.CC_DIRECTOR_FAST_FPS && _labelFPS != null){
+			_labelFPS.cleanup();
+			_labelFPS = null;
+		}else if(_texFPS != null){
+			_texFPS.release();
+			_texFPS = null;
+		}
+		
+		CCTouchDispatcher.purgeSharedDispatcher();
+		CCAccelerometerDispatcher.purgeSharedDispatcher();
+		CCEventManager.purgeSharedManager();
+		CCSceneManager.purgeSharedSceneManager();
+		CCActionManager.purgeSharedManager();
+		CCScheduler.purgeSharedScheduler();
+		CCTextureCache.purgeSharedTextureCache();
+		
+		_input.setTouchDispatcher(null);
+		_glView = null;
+		_context = null;
+		_sharedDirector = null;
+		_purged = true;
+}
+	
 	private boolean _nextDeltaTimeZero;
 	public void setNextDeltaTimeZero(boolean b){
 		_nextDeltaTimeZero = b;
@@ -70,7 +105,8 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 	private long _lastUpdata;
 	protected void calculateDeltaTime(){
 		long now = System.currentTimeMillis();
-		long dt = now - _lastUpdata;
+		long dt;
+		dt = now - _lastUpdata;
 		if(_nextDeltaTimeZero){
 			_dt = 0;
 			_nextDeltaTimeZero = false;
@@ -95,18 +131,16 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		CCTextureCache.sharedTextureCache().setCurrentGL(gl);
 		CCTextureCache.sharedTextureCache().restoreTextures();
 		initGLDefaultValues(gl);
-//		_timer.schedule(new logicUpDate(), 0, 1000/60);
 	}
 	
 	private float _step;
 	@Override
 	public final synchronized void onDrawFrame(GL10 gl) {
-			if(_isEnd)
-				return;
+			if(_purged)	return;
 			calculateDeltaTime();
 			_step += _dt;
-	        if (!_isPaused && _step > 0.015f){
-	        	CCScheduler.sharedScheduler().tick(_step);
+	        if (!_isPaused && _step > CCConfig.CC_DIRECTOR_UPDATE_DELAY){
+	        	CCScheduler.sharedScheduler().tick(CCConfig.CC_DIRECTOR_UPDATE_DELAY);
 	        	_step = 0;
 	        }
 			CCSceneManager.shareManager().runNextScene();
@@ -134,37 +168,9 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 			gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
 			gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 	}
-
-	private boolean _isEnd = false;
-	public synchronized void end(){
-			CCTouchDispatcher.purgeSharedDispatcher();
-			CCAccelerometerDispatcher.purgeSharedDispatcher();
-			if(CCConfig.CC_DIRECTOR_FAST_FPS && _labelFPS != null){
-				_labelFPS.cleanup();
-				_labelFPS = null;
-			}else if(_texFPS != null){
-				_texFPS.release();
-				_texFPS = null;
-			}
-				
-			CCSceneManager.purgeSharedSceneManager();
-			
-//			CCSpriteFrameCache.purgeSharedSpriteFrameCache();
-
-			CCScheduler.purgeSharedScheduler();
-			CCActionManager.purgeSharedManager();
-
-			CCTextureCache.purgeSharedTextureCache();
-			_input.setTouchDispatcher(null);
-			_glView = null;
-			_sharedDirector = null;
-			_isEnd = true;
-	}
 	
 	public void onSurfaceDestroyed() {
-		//CCTextureCache.sharedTextureCache().saveTextures();
 		CCTextureCache.sharedTextureCache().setCurrentGL(null);
-		//_timer.cancel();
 	}	
 	
 	protected abstract void  beginRender(GL10 gl);
@@ -383,7 +389,7 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		}
 	}
 	
-	private boolean _displayFPS = CCConfig.CC_DIRECTOR_SHOW_FPS;
+	private boolean _displayFPS;
 	
 	public void setEnableDisplayFPS(boolean toShow){
 		_displayFPS = toShow;
@@ -393,7 +399,7 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		return _displayFPS;
 	}
 	
-	private int _deviceOrientation = kCCDeviceOrientationLandscapeRight;
+	private int _deviceOrientation;;
 	public int deviceOrientation(){
 		return _deviceOrientation;
 	}
@@ -402,7 +408,7 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		_deviceOrientation = ori;
 	}
 	
-	private boolean _isPaused = false;
+	private boolean _isPaused;
 	public boolean IsPaused(){
 		return _isPaused;
 	}
@@ -435,6 +441,7 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		if(_isPaused){
 			return;
 		}
+		CCEventManager.pause();
 		_isPaused = true;
 		if(_glView!=null)
 			_glView.onPause();
@@ -444,8 +451,9 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		if(!_isPaused){
 			return;
 		}
+		CCEventManager.resume();
 		_isPaused = false;
-		_dt = 0;
+		_nextDeltaTimeZero = true;
 		if(_glView!=null)
 			_glView.onResume();
 	}
@@ -491,19 +499,6 @@ public static final String LOG_TAG = CCDirector.class.getSimpleName();
 		_glView = surfaceView;
 	}
 	
-	public void ready(){
-		_isEnd = false;
-		_isPaused = false;
-		_dt = 0;
-		_deviceOrientation = kCCDeviceOrientationLandscapeRight;
-		_displayFPS = CCConfig.CC_DIRECTOR_SHOW_FPS;
-		_labelFPS = null;
-		_texFPS = null;
-		WindowManager wm = (WindowManager) _context.getSystemService(Context.WINDOW_SERVICE);
-		_width = wm.getDefaultDisplay().getWidth();
-		_height = wm.getDefaultDisplay().getHeight();
-	}
-
 	public CCPoint convertAccelerometer(float accelX, float accelY) {
         switch ( _deviceOrientation) {
         case kCCDeviceOrientationPortrait:

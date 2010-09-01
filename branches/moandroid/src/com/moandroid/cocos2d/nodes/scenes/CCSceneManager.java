@@ -11,8 +11,6 @@ import com.moandroid.cocos2d.renderers.CCDirector;
 public class CCSceneManager {
 	public static final String LOG_TAG = CCSceneManager.class.getSimpleName();
 
-	private ArrayList<CCScene> _scenesStack = new ArrayList<CCScene>(10);
-	
 	private static CCSceneManager _shareManager;
 	public static CCSceneManager shareManager(){
 		if(_shareManager == null){
@@ -21,16 +19,25 @@ public class CCSceneManager {
 		return _shareManager;
 	}
 	
+//	private static boolean _purged;
 	public static void purgeSharedSceneManager() {
 		if(_shareManager != null){
 			_shareManager.endAllScene();
+			_shareManager._scenesStack = null;
+			_shareManager._runningScene = null;
+			_shareManager._nextScene = null;
 			_shareManager = null;
+//			_purged = true;
 		}
 	}
 	
+	private ArrayList<CCScene> _scenesStack;
 	protected CCSceneManager(){
-		synchronized (CCSceneManager.class){		 
-		}	
+//		synchronized (CCSceneManager.class){
+			_sendCleanupToScene = false;
+//			_purged = false;
+			_scenesStack = new ArrayList<CCScene>(10);
+//		}	
 	}
 	
 	private CCScene _runningScene;
@@ -40,7 +47,7 @@ public class CCSceneManager {
 	
 	private CCScene _nextScene;
 
-	private boolean _sendCleanupToScene = false;
+	private boolean _sendCleanupToScene;
 
 	public CCScene nextScene(){
 		return _nextScene;
@@ -84,6 +91,7 @@ public class CCSceneManager {
 	}
 	
 	public void runNextScene(){
+//		if(_purged) return;
 		if(_nextScene != null){
 			if(_runningScene != null){
 				_runningScene.onExit();	
@@ -113,6 +121,7 @@ public class CCSceneManager {
 	}
 
 	public void visitScene(GL10 gl) {
+//		if(_purged) return;
 		if(_runningScene!=null)
 			_runningScene.visit(gl);
 	}

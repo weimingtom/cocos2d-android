@@ -2,9 +2,9 @@ package com.moandroid.cocos2d.nodes.ui;
 
 import java.util.ArrayList;
 
-import android.view.MotionEvent;
-
+import com.moandroid.cocos2d.events.CCEvent;
 import com.moandroid.cocos2d.events.CCTouchDispatcher;
+import com.moandroid.cocos2d.events.CCTouchEvent;
 import com.moandroid.cocos2d.nodes.CCLayer;
 import com.moandroid.cocos2d.renderers.CCDirector;
 import com.moandroid.cocos2d.types.CCPoint;
@@ -69,12 +69,12 @@ public class CCMenu extends CCLayer {
     // Menu - Events
 
     @Override
-    public boolean touchesBegan(MotionEvent event) {
+    public boolean touchesBegan(CCEvent event) {
 
         if (state != kMenuStateWaiting)
             return false;
 
-        _selectedItem = itemForTouch(event);
+        _selectedItem = itemForTouch((CCTouchEvent)event);
 
         if (_selectedItem != null) {
             _selectedItem.selected();
@@ -86,7 +86,7 @@ public class CCMenu extends CCLayer {
     }
 
     @Override
-    public boolean touchesEnded(MotionEvent event) {
+    public boolean touchesEnded(CCEvent event) {
         if (state == kMenuStateTrackingTouch) {
             if (_selectedItem != null) {
                 _selectedItem.unselected();
@@ -101,7 +101,7 @@ public class CCMenu extends CCLayer {
     }
 
     @Override
-    public boolean touchesCancelled(MotionEvent event) {
+    public boolean touchesCancelled(CCEvent event) {
         if (state == kMenuStateTrackingTouch) {
             if (_selectedItem != null) {
                 _selectedItem.unselected();
@@ -115,9 +115,9 @@ public class CCMenu extends CCLayer {
     }
 
     @Override
-    public boolean touchesMoved(MotionEvent event) {
+    public boolean touchesMoved(CCEvent event) {
         if (state == kMenuStateTrackingTouch) {
-            CCMenuItem currentItem = itemForTouch(event);
+            CCMenuItem currentItem = itemForTouch((CCTouchEvent) event);
 
             if (currentItem != _selectedItem) {
                 if (_selectedItem != null) {
@@ -320,8 +320,8 @@ public class CCMenu extends CCLayer {
         }
     }
 
-    private CCMenuItem itemForTouch(MotionEvent event) {
-        CCPoint touchLocation = CCDirector.sharedDirector().convertToGL(event.getX(), event.getY());
+    private CCMenuItem itemForTouch(CCTouchEvent event) {
+        CCPoint touchLocation = CCDirector.sharedDirector().convertToGL(event.x, event.y);
         for (int i = 0; i < _children.size(); i++) {
             CCMenuItem item = (CCMenuItem) _children.get(i);
             if(item.containsPoint(touchLocation)){

@@ -1,15 +1,13 @@
 package com.moandroid.cocos2d.events;
 
-import android.view.MotionEvent;
-
 public interface CCTouchDelegate {
 
-	boolean touchesBegan(MotionEvent event);
+	boolean touchesBegan(CCEvent event);
 
-	boolean touchesMoved(MotionEvent event);
+	boolean touchesMoved(CCEvent event);
 
-	boolean touchesEnded(MotionEvent event);
+	boolean touchesEnded(CCEvent event);
 
-	boolean touchesCancelled(MotionEvent event);
+	boolean touchesCancelled(CCEvent event);
 
 }

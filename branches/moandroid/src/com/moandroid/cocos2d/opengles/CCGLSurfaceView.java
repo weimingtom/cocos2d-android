@@ -60,7 +60,6 @@ public class CCGLSurfaceView extends GLSurfaceView
 		mDirector = director;
 		director.setTouchInput(this);
 		director.setGLView(this);
-		director.ready();
 		super.setRenderer(director);
 	}
 	

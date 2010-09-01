@@ -211,10 +211,12 @@ public class SoundManager {
 		}
 	}
 	
-	private static HashMap<Integer,Media> sounds_ID = new HashMap<Integer,Media>(10);
-	private static HashMap<String,Media> sounds_URI = new HashMap<String,Media>(10);
+	private static HashMap<Integer,Media> sounds_ID;
+	private static HashMap<String,Media> sounds_URI;
 	
 	protected SoundManager(){
+		sounds_ID = new HashMap<Integer,Media>(10);
+		sounds_URI = new HashMap<String,Media>(10);
 	}
 	
 	public boolean loadSound(Context context, int ID, boolean loop, boolean mutex)

@@ -5,19 +5,15 @@ import javax.microedition.khronos.opengles.GL10;
 import android.content.Context;
 
 public class CCDirector2D extends CCDirector {
-	
-	public static CCDirector2D sharedDirector() {
-        if (CCDirector._sharedDirector == null) {
-        	CCDirector._sharedDirector = new CCDirector2D();
-        }
-        return (CCDirector2D) CCDirector._sharedDirector;
+		
+	public CCDirector2D(Context context) {
+		super(context);
 	}
-	
+
 	public static CCDirector2D sharedDirector(Context context) {
         if (CCDirector._sharedDirector == null) {
-        	CCDirector._sharedDirector = new CCDirector2D();
+        	CCDirector._sharedDirector = new CCDirector2D(context);
         }
-        CCDirector._sharedDirector.setContext(context);
         return (CCDirector2D) CCDirector._sharedDirector;
 	}
 	

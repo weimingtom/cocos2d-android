@@ -12,12 +12,12 @@ import android.view.MotionEvent;
 
 import com.moandroid.cocos2d.actions.CCAction;
 import com.moandroid.cocos2d.actions.CCActionManager;
-import com.moandroid.cocos2d.actions.CCScheduler;
 import com.moandroid.cocos2d.actions.CCTimer;
 import com.moandroid.cocos2d.camera.CCCamera;
 
 import com.moandroid.cocos2d.nodes.protocol.CCNodeSizeProtocol;
 import com.moandroid.cocos2d.renderers.CCDirector;
+import com.moandroid.cocos2d.renderers.CCScheduler;
 import com.moandroid.cocos2d.types.CCAffineTransform;
 import com.moandroid.cocos2d.types.CCPoint;
 import com.moandroid.cocos2d.types.CCRect;
@@ -240,7 +240,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	return addChild(child, child.zOrder(), child.tag());
     }
     
-    public synchronized void insertChild(CCNode child, int z){
+    public /*synchronized*/ void insertChild(CCNode child, int z){
     	Assert.assertTrue("Child must be non-nil", child != null);
     	boolean added = false;
     	 for (int i = 0; i < _children.size(); i++) {
@@ -258,7 +258,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	child.setZOrder(z);
     }
 	
-    public synchronized void reorderChild(CCNode child, int zOrder){
+    public /*synchronized*/ void reorderChild(CCNode child, int zOrder){
     	Assert.assertTrue("Child must be non-nil", child != null);
     	_children.remove(child);
     	insertChild(child,zOrder);
@@ -290,7 +290,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	}
     }
     
-    public synchronized void detachChild(CCNode child, boolean doCleanup){
+    public /*synchronized*/ void detachChild(CCNode child, boolean doCleanup){
     	Assert.assertTrue("Child must be non-nil", child != null);
 
     	if(_isRunning){
@@ -307,7 +307,7 @@ public class CCNode implements CCNodeSizeProtocol{
     	
     }   
     
-    public synchronized void visit(GL10 gl){
+    public /*synchronized*/ void visit(GL10 gl){
     	if(_visible == false)// || _cleanup == true)
     		return;
     	gl.glPushMatrix();

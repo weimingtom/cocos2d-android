@@ -15,6 +15,8 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.ContactPoint;
 import org.jbox2d.dynamics.contacts.ContactResult;
 
+import com.moandroid.cocos2d.events.CCEvent;
+import com.moandroid.cocos2d.events.CCTouchEvent;
 import com.moandroid.cocos2d.nodes.CCLayer;
 import com.moandroid.cocos2d.nodes.scenes.CCScene;
 import com.moandroid.cocos2d.nodes.sprite.CCSprite;
@@ -30,7 +32,6 @@ import com.moandroid.cocos2d.util.CCUtils;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -201,12 +202,12 @@ public class JBox2DTest extends Activity {
 	        	bxSpritePolygonDef.density = 1.0f;
 	        	bxSpritePolygonDef.friction = 0.3f;
 	        	
-	        	synchronized (bxWorld) {
+//	        	synchronized (bxWorld) {
 	        		// Define the dynamic body fixture and set mass so it's dynamic.
 	        		Body bxSpriteBody = bxWorld.createBody(bxSpriteBodyDef);
 		    		bxSpriteBody.createShape(bxSpritePolygonDef);
 		    		bxSpriteBody.setMassFromShapes();
-	        	}
+//	        	}
 	        }
 
 //			public void step(float delta){
@@ -248,9 +249,9 @@ public class JBox2DTest extends Activity {
 	        	
 	        	// Instruct the world to perform a simulation step. It is
 	        	// generally best to keep the time step and iterations fixed.
-	        	synchronized (bxWorld) {
+//	        	synchronized (bxWorld) {
 	        		bxWorld.step(delta, 8);
-	        	}
+//	        	}
 		        
 	        	// Iterate over the bodies in the physics world
 	        	for (Body b = bxWorld.getBodyList(); b != null; b = b.getNext()) {
@@ -287,8 +288,9 @@ public class JBox2DTest extends Activity {
 			}
 
 			@Override
-	        public boolean touchesBegan(MotionEvent event) {
-	            CCPoint location = CCDirector.sharedDirector().convertToGL(event.getX(), event.getY());
+	        public boolean touchesBegan(CCEvent event) {
+				CCTouchEvent tevent = (CCTouchEvent)event;
+	            CCPoint location = CCDirector.sharedDirector().convertToGL(tevent.x, tevent.y);
 
 	            addNewSpriteWithCoords(location);
 	 
