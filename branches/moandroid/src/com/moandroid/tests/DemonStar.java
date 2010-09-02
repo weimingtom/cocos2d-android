@@ -34,6 +34,8 @@ import com.moandroid.cocos2d.opengles.CCGLSurfaceView;
 import com.moandroid.cocos2d.opengles.CCPrimitives;
 import com.moandroid.cocos2d.renderers.CCDirector;
 import com.moandroid.cocos2d.renderers.CCDirector2D;
+import com.moandroid.cocos2d.texture.CCTexture2D;
+import com.moandroid.cocos2d.texture.CCTextureCache;
 import com.moandroid.cocos2d.types.CCPoint;
 import com.moandroid.cocos2d.types.CCSize;
 import com.moandroid.cocos2d.util.CCUtils;
@@ -97,11 +99,8 @@ public class DemonStar extends Activity {
 		protected static final int SELF_GROUP_INDEX = -2;
 		protected static final int ENEMY_GROUP_INDEX = -3;
 		protected final World bxWorld;
-		private CCSprite mFighterA;
+		private Fight mFighterA;
 		Body bxSpriteBody;
-		CCAnimation _animA;
-		CCAnimation _animB;
-		CCAnimation _animC;
 		public GameLayer(){
         	setTouchEnabled(true);
         	setAccelerometerEnabled(true);
@@ -155,26 +154,11 @@ public class DemonStar extends Activity {
 //        	bxGroundRight.createShape(bxGroundRightEdgeDef);
 
             
-            mFighterA = CCSprite.sprite("demonstar/image/fighterA_0.png");
-            _animA = CCAnimation.animation("fighterA",0.1f,"demonstar/image/fighterA_0.png","demonstar/image/fighterA_1.png");
-            _animB = CCAnimation.animation("fighterB",0.1f,"demonstar/image/fighterB_0.png","demonstar/image/fighterB_1.png");
-            _animC = CCAnimation.animation("fighterC",0.1f,
-            		"demonstar/image/explosion_02.png",
-            		"demonstar/image/explosion_03.png",
-            		"demonstar/image/explosion_04.png",
-            		"demonstar/image/explosion_05.png",
-            		"demonstar/image/explosion_06.png",
-            		"demonstar/image/explosion_07.png",
-            		"demonstar/image/explosion_08.png",
-            		"demonstar/image/explosion_09.png",
-            		"demonstar/image/explosion_10.png",
-            		"demonstar/image/explosion_11.png",
-            		"demonstar/image/explosion_12.png",
-            		"demonstar/image/explosion_13.png",
-            		"demonstar/image/explosion_14.png");
+            mFighterA = new Fight(Fight.FIGHT_A);
+           
             mFighterA.setPosition(s.width/2,s.height/2);
-            mFighterA.runAction(CCRepeatForever.action(CCAnimate.action(_animA)));
-            addChild(mFighterA, -1);
+            
+            addChild(mFighterA, 1);
             
         	BodyDef bxSpriteBodyDef = new BodyDef();
         	bxSpriteBodyDef.userData = mFighterA;
@@ -192,7 +176,7 @@ public class DemonStar extends Activity {
 	    	
 	    	bxWorld.setContactListener(new GameContactListener());
 	    	bxWorld.setContactFilter(new GameContactFilter());
-	    	schedule("createEnemy",10);
+	    	//schedule("createEnemy",3);
  		}
 
 		private ArrayList<Body> _discardeds = new ArrayList<Body>(10);
@@ -201,7 +185,8 @@ public class DemonStar extends Activity {
         	while(iter.hasNext()){
         		Body b = iter.next();
         		bxWorld.destroyBody(b);
-        		if(b.getUserData() instanceof Bullet)
+        		if(!(b.getUserData() instanceof Fight) || 
+        			((Fight)b.getUserData()).isDeath==false)
         			removeChild((CCNode)b.getUserData(),true);
         	}
         	_discardeds.clear();
@@ -238,11 +223,11 @@ public class DemonStar extends Activity {
         	for (Body b = bxWorld.getBodyList(); b != null; b = b.getNext()) {
         		Object userData = b.getUserData();
         		if (userData != null) {
-        			if(userData instanceof CCSprite){
+        			if(userData instanceof Fight){
         				if(b.isFrozen()){
         					_discardeds.add(b);
         				}else{
-        					CCSprite sprite = (CCSprite)userData;
+        					Fight sprite = (Fight)userData;
         					sprite.setPosition(b.getPosition().x * PTM_RATIO, b.getPosition().y * PTM_RATIO);
         					sprite.setRotation(-1.0f * CCUtils.CC_RADIANS_TO_DEGREES(b.getAngle()));
         				}
@@ -271,6 +256,33 @@ public class DemonStar extends Activity {
 			super.onExit();	
 		}
 		
+		private float _velx;
+		private float _vely;
+		
+		@Override
+		public boolean accelerometerChanged(float accelX, float accelY,
+				float accelZ) {
+			CCPoint vec = CCDirector.sharedDirector().convertAccelerometer(accelX, accelY);
+
+			float x,y;
+			if(vec.x < -1)
+				x = 4;
+			else if(vec.x > 1)
+				x = -4;
+			else
+				x = 0;
+			if(vec.y < -1)
+				y = 4;
+			else if(vec.y > 1)
+				y = -4;
+			else
+				y = 0;
+			_velx = x;
+			_vely = y;
+			return true;
+		}
+
+		
 		@Override
 		public void draw(GL10 gl) {
 			super.draw(gl);
@@ -294,38 +306,6 @@ public class DemonStar extends Activity {
 // 
 //			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 //            gl.glEnable(GL10.GL_TEXTURE_2D);
-		}
-
-		private float _velx;
-		private float _vely;
-		@Override
-		public boolean accelerometerChanged(float accelX, float accelY,
-				float accelZ) {
-//			synchronized (bxWorld) {
-				//if (bxSpriteBody.isSleeping() == false){
-					CCPoint vec = CCDirector.sharedDirector().convertAccelerometer(accelX, accelY);
-//					Vec2 impulse = new Vec2(-vec.x, -vec.y);
-//					Vec2 point = new Vec2( mFighterA.width()/2, mFighterA.height()/2);
-//					bxSpriteBody.applyForce(impulse, point);
-					float x,y;
-					if(vec.x < -1)
-						x = 4;
-					else if(vec.x > 1)
-						x = -4;
-					else
-						x = 0;
-					if(vec.y < -1)
-						y = 4;
-					else if(vec.y > 1)
-						y = -4;
-					else
-						y = 0;
-					_velx = x;
-					_vely = y;
-				//}
-				
-//			}
-			return true;
 		}
 
 		private boolean _isShooting = false;
@@ -385,10 +365,9 @@ public class DemonStar extends Activity {
 		public void createEnemy(float dt){
 			CCSize s = CCDirector.sharedDirector().winSize();
 			for(int i=0; i<18; ++i){
-				CCSprite enemy = CCSprite.sprite("demonstar/image/fighterB_0.png");        
+				Fight enemy = new Fight(Fight.FIGHT_B);        
 	            enemy.setPosition(i%6*53+10, s.height-i/6*50);
 	            enemy.setRotation(180);
-	            enemy.runAction(CCRepeatForever.action(CCAnimate.action(_animB)));
 				addChild(enemy,-1);
 				
 	        	BodyDef bxEnemyBodyDef = new BodyDef();
@@ -431,37 +410,41 @@ public class DemonStar extends Activity {
 				Object s1 = (Object)point.shape1.m_body.getUserData();
 				Object s2 = (Object)point.shape2.m_body.getUserData();
 				if(	s1 instanceof Bullet &&
-					s2 instanceof CCSprite){
+					s2 instanceof Fight){
 					_discardeds.add(point.shape1.m_body);
 					_discardeds.add(point.shape2.m_body);
 					//((CCSprite)s2).runAction(CCAnimate.action(_animC));
-					((CCSprite)s2).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s2,"deleteSelf")));
+					((Fight)s2).isDeath = true;
+					((Fight)s2).runAction(CCSequence.actions(CCCallFunc.action(s2,"die"),CCCallFunc.action(s2,"deleteSelf")));
 					SoundManager.sharedSoundManager().playSound("demonstar/sound/crash.mp3");
-					if((CCSprite)s2 == mFighterA){
+					if((Fight)s2 == mFighterA){
 						_gameLayer.stopAllActions();
 						mFighterA = null;
 						SoundManager.sharedSoundManager().stopSound("demonstar/sound/bullet1.mp3");	
 					}
 				}else if(	s2 instanceof Bullet &&
-						 	s1 instanceof CCSprite){
+						 	s1 instanceof Fight){
 					_discardeds.add(point.shape1.m_body);
 					_discardeds.add(point.shape2.m_body);
-					((CCSprite)s1).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s1,"deleteSelf")));
+					((Fight)s1).isDeath = true;
+					((Fight)s1).runAction(CCSequence.actions(CCCallFunc.action(s1,"die"),CCCallFunc.action(s1,"deleteSelf")));
 					SoundManager.sharedSoundManager().playSound("demonstar/sound/crash.mp3");	
-					if((CCSprite)s1 == mFighterA){
+					if((Fight)s1 == mFighterA){
 						_gameLayer.stopAllActions();
 						mFighterA = null;
 						SoundManager.sharedSoundManager().stopSound("demonstar/sound/bullet1.mp3");	
 					}
-				}else if(	s1 instanceof CCSprite &&
-							s2 instanceof CCSprite){
+				}else if(	s1 instanceof Fight &&
+							s2 instanceof Fight){
 					_discardeds.add(point.shape1.m_body);
 					_discardeds.add(point.shape2.m_body);
-					((CCSprite)s1).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s1,"deleteSelf")));
-					((CCSprite)s2).runAction(CCSequence.actions(CCAnimate.action(_animC),CCCallFunc.action(s2,"deleteSelf")));
+					((Fight)s1).isDeath = true;
+					((Fight)s2).isDeath = true;
+					((Fight)s1).runAction(CCSequence.actions(CCCallFunc.action(s1,"die"),CCCallFunc.action(s1,"deleteSelf")));
+					((Fight)s2).runAction(CCSequence.actions(CCCallFunc.action(s2,"die"),CCCallFunc.action(s2,"deleteSelf")));
+					SoundManager.sharedSoundManager().stopSound("demonstar/sound/bullet1.mp3");	
 					SoundManager.sharedSoundManager().playSound("demonstar/sound/crash.mp3");	
 					_gameLayer.stopAllActions();
-					SoundManager.sharedSoundManager().stopSound("demonstar/sound/bullet1.mp3");	
 					mFighterA = null;
 				}
 				
@@ -495,6 +478,56 @@ public class DemonStar extends Activity {
 					shape2.m_body.getUserData() instanceof Bullet)
 					return false;
 				return true;
+			}
+		}
+	}
+	
+	public static class Fight extends CCNode{
+		public static final int FIGHT_A = 1;
+		public static final int FIGHT_B = 2;
+		public int _type;
+		public static final String FIGHT_A_PATH = "demonstar/image/fighterA_0.png";
+		public static final String FIGHT_B_PATH = "demonstar/image/fighterB_0.png";
+		private CCSprite sprite;
+		public static final CCAnimation _animA = CCAnimation.animation("fighterA",0.1f,"demonstar/image/fighterA_0.png","demonstar/image/fighterA_1.png");;
+		public static final CCAnimation _animB = CCAnimation.animation("fighterB",0.1f,"demonstar/image/fighterB_0.png","demonstar/image/fighterB_1.png");;
+		public static final CCAnimation _animC = CCAnimation.animation("fighterC",0.1f,
+        		"demonstar/image/explosion_02.png",
+        		"demonstar/image/explosion_03.png",
+        		"demonstar/image/explosion_04.png",
+        		"demonstar/image/explosion_05.png",
+        		"demonstar/image/explosion_06.png",
+        		"demonstar/image/explosion_07.png",
+        		"demonstar/image/explosion_08.png",
+        		"demonstar/image/explosion_09.png",
+        		"demonstar/image/explosion_10.png",
+        		"demonstar/image/explosion_11.png",
+        		"demonstar/image/explosion_12.png",
+        		"demonstar/image/explosion_13.png",
+        		"demonstar/image/explosion_14.png");
+		
+		public Fight(int type){
+			if(type == FIGHT_A){
+				type = FIGHT_A;
+				sprite = CCSprite.sprite(FIGHT_A_PATH);
+				sprite.runAction(CCRepeatForever.action(CCAnimate.action(_animA)));
+			}else{
+				sprite = CCSprite.sprite(FIGHT_B_PATH);
+				sprite.runAction(CCRepeatForever.action(CCAnimate.action(_animB)));
+			}
+			addChild(sprite);
+			isDeath = false;
+		}
+		
+		public boolean isDeath;
+		
+		public void die(){
+			sprite.runAction(CCAnimate.action(_animC));
+		}
+		
+		public void deleteSelf(){
+			if(_parent!=null){
+				_parent.removeChild(this, true);
 			}
 		}
 	}
